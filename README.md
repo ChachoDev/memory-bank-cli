@@ -1,5 +1,9 @@
 # memory-bank
 
+[![CI](https://github.com/TU-USUARIO/memory-bank-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/TU-USUARIO/memory-bank-cli/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
+
 A Python CLI utility for automating and managing persistent AI Memory Banks across multiple
 IDEs and agents (Claude Code, Cursor, OpenCode, Pi), built for
 [`uv`](https://docs.astral.sh/uv/). Its messages come in English,
