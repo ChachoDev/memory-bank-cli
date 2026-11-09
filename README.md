@@ -1,7 +1,8 @@
 # memory-bank
 
-A Markdown **Memory Bank** for AI coding agents (Claude Code, Cursor, OpenCode, Pi), shipped
-as a single CLI built for [`uv`](https://docs.astral.sh/uv/). Its messages come in English,
+A Python CLI utility for automating and managing persistent AI Memory Banks across multiple
+IDEs and agents (Claude Code, Cursor, OpenCode, Pi), built for
+[`uv`](https://docs.astral.sh/uv/). Its messages come in English,
 Spanish, French and German, picked from your operating system's language.
 
 **Languages:** [English](#english) · [Español](#español) · [Français](#français) · [Deutsch](#deutsch)
@@ -40,7 +41,7 @@ and teammates share it by pulling.
 Global install, so `memory-bank` works in every repository:
 
 ```bash
-cd memory-bank-skill
+cd memory-bank-cli
 uv tool install .
 # upgrade after pulling changes:
 uv tool install --reinstall .

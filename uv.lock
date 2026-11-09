@@ -33,7 +33,7 @@ wheels = [
 ]
 
 [[package]]
-name = "memory-bank-skill"
+name = "memory-bank-cli"
 version = "1.0.0"
 source = { editable = "." }
 

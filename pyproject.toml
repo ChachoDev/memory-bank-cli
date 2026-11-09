@@ -1,7 +1,7 @@
 [project]
-name = "memory-bank-skill"
+name = "memory-bank-cli"
 version = "1.0.0"
-description = "Multi-CLI Markdown memory bank for AI coding agents (Claude Code, Cursor, OpenCode, Pi)."
+description = "A Python CLI utility for automating and managing persistent AI Memory Banks across multiple IDEs and agents."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
