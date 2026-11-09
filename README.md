@@ -144,6 +144,15 @@ git commit -m "chore: add memory bank"
 IA lee antes de empezar y actualiza al terminar. Usa Markdown en Git en lugar de una base de datos
 porque no necesita ningún servicio, se revisa en las merge requests y sigue a tus ramas.
 
+| Fichero | Contiene |
+|---------|----------|
+| `projectbrief.md` | Alcance, objetivos, requisitos y stack detectado |
+| `productContext.md` | Por qué existe el producto, usuarios y objetivos UX |
+| `activeContext.md` | Enfoque actual, cambios recientes y próximos pasos |
+| `progress.md` | Qué funciona, qué falta y la fase actual |
+| `decisionLog.md` | Decisiones arquitectónicas (estilo ADR) |
+| `instructions.md` | Las reglas que siguen los agentes: leer primero, actualizar al final |
+
 **Requisitos:** Git (obligatorio: los comandos abortan fuera de un repositorio) y `uv`.
 
 **Instalación:**
@@ -182,6 +191,15 @@ chaque agent IA lit avant de commencer et met à jour en fin de travail. Markdow
 qu'une base de données : aucun service à faire tourner, relecture dans les merge requests, et la
 mémoire suit vos branches.
 
+| Fichier | Contient |
+|---------|----------|
+| `projectbrief.md` | Périmètre, objectifs, exigences et pile détectée |
+| `productContext.md` | Pourquoi le produit existe, utilisateurs, objectifs UX |
+| `activeContext.md` | Focus actuel, changements récents, prochaines étapes |
+| `progress.md` | Ce qui fonctionne, ce qui reste, phase en cours |
+| `decisionLog.md` | Décisions d'architecture (style ADR) |
+| `instructions.md` | Les règles que suivent les agents : lire d'abord, mettre à jour à la fin |
+
 **Prérequis :** Git (obligatoire : les commandes s'arrêtent hors d'un dépôt) et `uv`.
 
 **Installation :**
@@ -219,6 +237,15 @@ d'`instructions.md`.
 **Was es ist.** Ein Ordner `memory-bank/` mit Markdown-Dateien in Git, den jeder KI-Agent vor dem
 Start liest und am Ende aktualisiert. Markdown in Git statt einer Datenbank: kein Dienst nötig,
 Review in Merge Requests, und das Gedächtnis folgt deinen Branches.
+
+| Datei | Enthält |
+|-------|---------|
+| `projectbrief.md` | Umfang, Ziele, Anforderungen und erkannter Stack |
+| `productContext.md` | Warum es das Produkt gibt, Nutzer, UX-Ziele |
+| `activeContext.md` | Aktueller Fokus, letzte Änderungen, nächste Schritte |
+| `progress.md` | Was funktioniert, was fehlt, aktuelle Phase |
+| `decisionLog.md` | Architekturentscheidungen (ADR-Stil) |
+| `instructions.md` | Die Regeln der Agenten: zuerst lesen, zuletzt aktualisieren |
 
 **Voraussetzungen:** Git (Pflicht: außerhalb eines Repositorys brechen die Befehle ab) und `uv`.
 
