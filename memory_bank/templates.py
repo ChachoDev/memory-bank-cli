@@ -213,6 +213,24 @@ When the user says **"update memory bank"**, I review every file and update all 
 - Never write secrets, tokens, credentials or personal data in the memory bank.
 - Dates in ISO format (YYYY-MM-DD).
 - The memory bank is committed with the code it describes, in the same commit when possible.
+
+## 5. If the project uses Spec-Driven Development (SDD)
+
+Some projects keep a spec-driven workflow beside the code: a folder of specs and,
+for each change, a proposal, a design and a task list. When that workflow exists,
+I keep the two sources of truth apart:
+
+- Specs, proposals, per-change design and task lists belong to the SDD workflow.
+  I do not copy them into the memory bank.
+- `decisionLog.md` holds only what is durable for the whole project: a decision
+  that outlives the change that introduced it.
+- `progress.md` is the project-wide status. When it disagrees with an SDD task
+  list, the task list wins: it is more granular and stays current while the
+  change is open.
+- `activeContext.md` may point at the change in flight, so the next session knows
+  where to resume.
+
+If the project does not use SDD, this section does not apply and nothing changes.
 """
 
 TEMPLATES: Final[dict[str, str]] = {

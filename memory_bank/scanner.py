@@ -98,6 +98,7 @@ IGNORED_DIRS: Final = frozenset(
         "memory-bank",
         ".opencode",
         ".claude",
+        ".agents",
     }
 )
 

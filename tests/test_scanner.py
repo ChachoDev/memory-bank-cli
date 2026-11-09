@@ -63,6 +63,15 @@ def test_ignores_dependency_and_memory_folders(tmp_path: Path) -> None:
     assert scan_project(str(tmp_path))["has_code"] is False
 
 
+@pytest.mark.parametrize("folder", [".claude", ".opencode", ".agents"])
+def test_ignores_tool_generated_folders(tmp_path: Path, folder: str) -> None:
+    """Skills and hooks written by agents are not project code."""
+    skill = tmp_path / folder / "skills" / "some-skill"
+    skill.mkdir(parents=True)
+    (skill / "helper.py").write_text("")
+    assert scan_project(str(tmp_path)) == {"has_code": False, "detected_stack": []}
+
+
 def test_does_not_look_deeper_than_three_levels(tmp_path: Path) -> None:
     deep = tmp_path / "a" / "b" / "c" / "d"
     deep.mkdir(parents=True)

@@ -48,3 +48,13 @@ def test_instructions_tell_agents_to_read_first_and_update_last() -> None:
     instructions = TEMPLATES["instructions.md"]
     assert "Before doing anything: read the memory bank" in instructions
     assert "Before finishing: update the memory bank" in instructions
+
+
+def test_instructions_draw_a_boundary_with_sdd_without_naming_tools() -> None:
+    instructions = TEMPLATES["instructions.md"]
+    assert "Spec-Driven Development (SDD)" in instructions
+    # The boundary must not mention a specific SDD tool: it applies to any of them.
+    for tool in ("OpenSpec", "spec-kit", "Kiro", "BMAD"):
+        assert tool not in instructions
+    # Without SDD the section is inert, so it has to say so explicitly.
+    assert "does not apply" in instructions
