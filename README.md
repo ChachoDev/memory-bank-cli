@@ -1,6 +1,6 @@
 # memory-bank
 
-[![CI](https://github.com/TU-USUARIO/memory-bank-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/TU-USUARIO/memory-bank-cli/actions/workflows/ci.yml)
+[![CI](https://github.com/ChachoDev/memory-bank-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/ChachoDev/memory-bank-cli/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 
@@ -45,8 +45,11 @@ and teammates share it by pulling.
 Global install, so `memory-bank` works in every repository:
 
 ```bash
-cd memory-bank-cli
-uv tool install .
+# straight from GitHub:
+uv tool install git+https://github.com/ChachoDev/memory-bank-cli
+# or from a local clone:
+git clone https://github.com/ChachoDev/memory-bank-cli
+cd memory-bank-cli && uv tool install .
 # upgrade after pulling changes:
 uv tool install --reinstall .
 ```
@@ -276,3 +279,24 @@ nach Codeänderungen ein Update von `activeContext.md` und `progress.md`. In Ope
 `instructions.md`.
 
 **Sprache:** wird vom System erkannt; mit `MEMORY_BANK_LANG=de` erzwingen.
+
+---
+
+## Contributing
+
+Bug reports and pull requests are welcome. Before opening one:
+
+```bash
+uv sync --locked
+uvx ruff check . && uvx ruff format --check .
+uvx mypy --strict memory_bank
+uv run pytest
+```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide and [CHANGELOG.md](CHANGELOG.md)
+for release notes. The project is a standard-library-only Python package, so the test suite
+runs without any external service.
+
+## License
+
+[MIT](LICENSE) © 2026 Victor M. Cañada Ojeda.

@@ -20,10 +20,10 @@ classifiers = [
 dependencies = []
 
 [project.urls]
-Homepage = "https://github.com/TU-USUARIO/memory-bank-cli"
-Repository = "https://github.com/TU-USUARIO/memory-bank-cli"
-Issues = "https://github.com/TU-USUARIO/memory-bank-cli/issues"
-Changelog = "https://github.com/TU-USUARIO/memory-bank-cli/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/ChachoDev/memory-bank-cli"
+Repository = "https://github.com/ChachoDev/memory-bank-cli"
+Issues = "https://github.com/ChachoDev/memory-bank-cli/issues"
+Changelog = "https://github.com/ChachoDev/memory-bank-cli/blob/main/CHANGELOG.md"
 
 [project.scripts]
 memory-bank = "memory_bank.cli:main"
