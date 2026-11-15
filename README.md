@@ -262,6 +262,26 @@ It deletes `memory-bank/` and regenerates every file from the templates, includi
 stack. Only Git history can bring back what it deletes. Links and hook configuration are rebuilt
 too.
 
+### `check`: find drift without changing anything
+
+`check` reads the memory bank and reports problems; it never edits a file.
+
+```bash
+memory-bank check             # report; exits 1 only on errors
+memory-bank check --strict    # also exits 1 on warnings (useful in CI)
+```
+
+It checks that the six files and their main sections exist, that no template placeholder or
+unrendered token is left, that `activeContext.md` is still short, that file references resolve,
+that "Known issues: None" does not contradict TODO/FIXME markers in the code, that the agent links
+point to `instructions.md`, that `instructions.md` is not from an older release, that dates are ISO
+and that no obvious secret was pasted. A fresh memory bank normally passes with placeholder
+warnings; fill it in and run `check --strict` before committing.
+
+`sync` never rewrites your notes, so an `instructions.md` created by an older version keeps its old
+rules. `check` warns about it and names the fix: ask the agent to merge the missing sections from the
+current template.
+
 ### What `start` creates
 
 ```text
@@ -313,7 +333,9 @@ you use `opencode.jsonc`, add `"memory-bank/*.md"` to its `instructions` yoursel
 The `Stop` hook blocks at most once per turn (it respects `stop_hook_active`), so it cannot loop.
 It ignores changes inside `memory-bank/` and the files memory-bank manages. It compares file
 modification times using `git status`: if any changed code file is newer than either
-`activeContext.md` or `progress.md`, it asks for an update.
+`activeContext.md` or `progress.md`, it asks for an update. The reminder includes a consistency
+checklist (update the docs, verify counts, keep `activeContext.md` short, do not fake "Known
+issues: None") and asks the agent to run `memory-bank check`.
 
 The Claude Code hooks call the `memory-bank` command, so every teammate needs it installed
 (`uv tool install`). When it is missing, Claude Code reports a non-blocking hook error and carries
@@ -333,6 +355,8 @@ git commit -m "chore: add memory bank"
 - **After pulling**, run `memory-bank sync` if links, copies or hooks may have changed.
 - **CI** does not need the memory bank to build your project. If you use the per-project install,
   keep the pinned version in `uv.lock`; do not run `reset` in CI, because it destroys notes.
+- **CI can validate the memory bank**: run `memory-bank check --strict`. It is read-only, so it
+  never touches notes, and it fails when the bank drifts from the code or the docs.
 - **Never commit** `.venv/` or the tool's cache. The generated files and configs are what you
   share.
 
@@ -364,6 +388,7 @@ The templates stay in English because their main reader is the agent.
 | `This is not an interactive terminal` on `reset` | No TTY | Add `--yes` |
 | Help appears in the wrong language | Locale detection | Set `MEMORY_BANK_LANG=en` (or `es`, `fr`, `de`) |
 | OpenCode does not load the files | No `instructions` entry | Add `"memory-bank/*.md"` to `opencode.json` and restart the session |
+| `check` reports a placeholder | The memory bank is still a template | Fill the file in; a fresh bank always warns |
 
 ### Command reference
 
@@ -371,14 +396,16 @@ The templates stay in English because their main reader is the agent.
 memory-bank help            # usage, in your system's language
 memory-bank start           # create memory-bank/, agent links and hooks
 memory-bank sync            # repair missing files, broken links, outdated hooks; keeps notes
+memory-bank check           # validate the memory bank without changing it
+memory-bank check --strict  # also fail on warnings (CI)
 memory-bank reset           # delete memory-bank/ and regenerate it (asks first)
 memory-bank reset --yes     # same, without the prompt (CI, scripts)
 memory-bank hook session-start   # internal, called by the Claude Code SessionStart hook
 memory-bank hook stop            # internal, called by the Claude Code Stop hook
 ```
 
-Exit codes: `0` success, `1` error (no Git, already initialised, reset cancelled), `2` wrong
-usage.
+Exit codes: `0` success, `1` error (no Git, already initialised, reset cancelled, or `check` found
+errors / strict warnings), `2` wrong usage.
 
 ### Credits
 
@@ -541,6 +568,27 @@ memory-bank reset --yes    # sin preguntar (CI, scripts)
 Borra `memory-bank/`, lo regenera desde las plantillas (incluido el stack detectado) y reconstruye
 enlaces y hooks. Solo el historial de Git puede recuperar lo borrado.
 
+### `check`: detectar incoherencias sin cambiar nada
+
+`check` lee el Memory Bank y reporta problemas; nunca edita un fichero.
+
+```bash
+memory-bank check             # informa; solo sale con 1 si hay errores
+memory-bank check --strict    # también sale con 1 si hay avisos (útil en CI)
+```
+
+Comprueba que existen los seis ficheros y sus secciones principales, que no queda ningún marcador
+de plantilla ni token sin sustituir, que `activeContext.md` sigue siendo corto, que las
+referencias a ficheros existen, que "Known issues: None" no contradice marcadores TODO/FIXME del
+código, que los enlaces de agente apuntan a `instructions.md`, que `instructions.md` no viene de una
+versión anterior, que las fechas son ISO y que no se ha pegado un secreto evidente. Un Memory Bank
+recién creado suele pasar con avisos de placeholders; complétalo y ejecuta `check --strict` antes de
+hacer commit.
+
+`sync` nunca reescribe tus notas, así que un `instructions.md` creado por una versión anterior
+conserva sus reglas antiguas. `check` lo avisa e indica la solución: pide al agente que fusione las
+secciones que faltan desde la plantilla actual.
+
 ### Qué crea `start`
 
 ```text
@@ -588,6 +636,8 @@ git commit -m "chore: add memory bank"
 - Tras un `git pull`, ejecuta `memory-bank sync` si pueden haber cambiado enlaces, copias o hooks.
 - CI no necesita el memory bank para compilar. Si usas la instalación por proyecto, mantén la
   versión fijada en `uv.lock`; no ejecutes `reset` en CI, porque borra notas.
+- **CI puede validar el memory bank**: ejecuta `memory-bank check --strict`. Es de solo lectura,
+  así que nunca toca las notas, y falla cuando el banco se desvía del código o de la documentación.
 - No hagas commit de `.venv/` ni de la caché de la herramienta.
 
 ### Idioma
@@ -614,6 +664,7 @@ principal es el agente.
 | `This is not an interactive terminal` en `reset` | No hay TTY | Añade `--yes` |
 | La ayuda sale en otro idioma | Detección del locale | Usa `MEMORY_BANK_LANG=es` (o `en`, `fr`, `de`) |
 | OpenCode no carga los ficheros | Falta la entrada `instructions` | Añádela a `opencode.json` y reinicia la sesión |
+| `check` reporta un placeholder | El Memory Bank aún es una plantilla | Completa el fichero; un banco nuevo siempre avisa |
 
 ### Comandos y códigos de salida
 
@@ -621,11 +672,14 @@ principal es el agente.
 memory-bank help            # ayuda en el idioma del sistema
 memory-bank start           # crea memory-bank/, los enlaces y los hooks
 memory-bank sync            # repara lo que falta sin tocar tus notas
+memory-bank check           # valida el Memory Bank sin cambiarlo
+memory-bank check --strict  # también falla con avisos (CI)
 memory-bank reset           # borra y regenera memory-bank/ (pide confirmación)
 memory-bank reset --yes     # lo mismo, sin preguntar (CI, scripts)
 ```
 
-Códigos: `0` éxito, `1` error (sin Git, ya inicializado, reset cancelado), `2` uso incorrecto.
+Códigos: `0` éxito, `1` error (sin Git, ya inicializado, reset cancelado, o `check` encontró
+errores / avisos con `--strict`), `2` uso incorrecto.
 
 **Créditos:** la idea original del Memory Bank es de
 [Nick Baumann](https://github.com/nickbaumann98), creada para [Cline](https://cline.bot). Este
@@ -706,6 +760,11 @@ ou un hook semble cassé :
 
 `reset` supprime `memory-bank/` et le régénère depuis les modèles. Seul l'historique Git peut
 restaurer les notes supprimées.
+
+`check` valide le Memory Bank sans rien modifier : `memory-bank check` signale les incohérences
+(fichiers ou sections manquants, placeholders, liens cassés, dates non ISO, secrets évidents,
+`instructions.md` écrit par une version plus ancienne) et `--strict` échoue aussi sur les
+avertissements.
 
 ### Équipe et CI
 
@@ -798,6 +857,11 @@ ein Link oder Hook defekt wirkt:
 
 `reset` löscht `memory-bank/` und erzeugt es aus den Vorlagen neu. Nur die Git-Historie kann
 gelöschte Notizen wiederherstellen.
+
+`check` prüft die Memory Bank, ohne etwas zu ändern: `memory-bank check` meldet Unstimmigkeiten
+(fehlende Dateien oder Abschnitte, Platzhalter, defekte Links, Nicht-ISO-Daten, offensichtliche
+Geheimnisse, ein `instructions.md` aus einer älteren Version), `--strict` schlägt auch bei
+Warnungen fehl.
 
 ### Team und CI
 

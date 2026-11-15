@@ -46,6 +46,125 @@ def set_language(monkeypatch: pytest.MonkeyPatch, language: str) -> None:
     i18n.detect_language.cache_clear()
 
 
+CLEAN_MEMORY_BANK: dict[str, str] = {
+    "projectbrief.md": """# Project Brief
+
+## Overview
+
+A demo project.
+
+## Goals
+
+- Ship the demo.
+
+## Core requirements
+
+- [x] Work.
+
+## Out of scope
+
+- Nothing.
+
+## Technology stack
+
+- Python
+
+## Constraints
+
+- None.
+""",
+    "productContext.md": """# Product Context
+
+## Problem
+
+People need a demo.
+
+## Users
+
+| User | Need | How the product helps |
+|------|------|-----------------------|
+| Developer | A demo | A small CLI |
+
+## Value proposition
+
+Fast and simple.
+
+## User experience goals
+
+- Fast.
+
+## How it should work
+
+Run the command.
+""",
+    "activeContext.md": """# Active Context
+
+## Current focus
+
+Keeping the demo working (2026-11-15).
+
+## Recent changes
+
+- 2026-11-15: initial version.
+
+## Next steps
+
+1. Ship it.
+
+## Open questions and blockers
+
+- None.
+
+## Active decisions and considerations
+
+- None.
+""",
+    "progress.md": """# Progress
+
+## Current phase
+
+**Phase 1: MVP** (since 2026-11-15)
+
+## What works
+
+- [x] The demo works.
+
+## What is left to build
+
+- Nothing.
+
+## Known issues
+
+- None.
+
+## Milestones
+
+| Phase | Goal | Status |
+|-------|------|--------|
+| 1. MVP | The demo | Done |
+""",
+    "decisionLog.md": """# Decision Log
+
+## ADR-001: Use a CLI
+
+- **Date:** 2026-11-15
+- **Status:** Accepted
+- **Context:** Users need a command.
+- **Decision:** Ship a CLI.
+- **Alternatives considered:**
+  - A web app: too much.
+- **Consequences:**
+  - Works in a terminal.
+""",
+}
+
+
+def clean_memory_bank(root: Path) -> None:
+    """Replace the template placeholders with a small, fully filled-in memory bank."""
+    for name, content in CLEAN_MEMORY_BANK.items():
+        (root / "memory-bank" / name).write_text(content, encoding="utf-8")
+
+
 @pytest.fixture(autouse=True)
 def english(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
     """Every test starts in English, whatever the developer's locale is."""

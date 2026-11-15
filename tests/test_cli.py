@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from conftest import commit_all, set_language
+from conftest import clean_memory_bank, commit_all, set_language
 
 from memory_bank import __version__, cli, scaffold
 
@@ -31,7 +31,7 @@ def test_help(argv: list[str], capsys: pytest.CaptureFixture[str]) -> None:
     assert cli.run(argv) == cli.EXIT_OK
     out = capsys.readouterr().out
     assert out.startswith(f"memory-bank {__version__}")
-    for command in ("start", "sync", "reset", "help"):
+    for command in ("start", "sync", "check", "reset", "help"):
         assert f"  {command}" in out
 
 
@@ -53,7 +53,7 @@ def test_unknown_command(capsys: pytest.CaptureFixture[str]) -> None:
     assert "Unknown command: deploy" in capsys.readouterr().err
 
 
-@pytest.mark.parametrize("command", ["start", "sync"])
+@pytest.mark.parametrize("command", ["start", "sync", "check"])
 def test_unknown_option(repo: Path, command: str, capsys: pytest.CaptureFixture[str]) -> None:
     assert cli.run([command, "--force"]) == cli.EXIT_USAGE
     assert "Unknown option: --force" in capsys.readouterr().err
@@ -157,6 +157,73 @@ def test_sync_repairs_without_losing_notes(repo: Path) -> None:
     assert (repo / "memory-bank" / "activeContext.md").read_text() == "my focus\n"
     assert (repo / "memory-bank" / "progress.md").is_file()
     assert (repo / "CLAUDE.md").is_symlink()
+
+
+# --- check ----------------------------------------------------------------------------------
+
+
+def test_check_requires_an_existing_memory_bank(
+    repo: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    assert cli.run(["check"]) == cli.EXIT_ERROR
+    assert "Run 'memory-bank start' first" in capsys.readouterr().err
+
+
+def test_check_requires_git(no_repo: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    assert cli.run(["check"]) == cli.EXIT_ERROR
+    assert "is not inside a Git repository" in capsys.readouterr().err
+
+
+def test_check_reports_warnings_without_failing(
+    repo: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    cli.run(["start"])
+    capsys.readouterr()
+    assert cli.run(["check"]) == cli.EXIT_OK
+    out = capsys.readouterr().out
+    assert "warning:" in out
+    assert "error(s)" in out
+
+
+def test_check_strict_fails_on_warnings(repo: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    cli.run(["start"])
+    capsys.readouterr()
+    assert cli.run(["check", "--strict"]) == cli.EXIT_ERROR
+
+
+def test_check_passes_on_a_clean_memory_bank(
+    repo: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    cli.run(["start"])
+    clean_memory_bank(repo)
+    capsys.readouterr()
+    assert cli.run(["check"]) == cli.EXIT_OK
+    assert "looks consistent" in capsys.readouterr().out
+
+
+def test_check_reports_errors(repo: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    cli.run(["start"])
+    clean_memory_bank(repo)
+    (repo / "memory-bank" / "progress.md").unlink()
+    capsys.readouterr()
+    assert cli.run(["check"]) == cli.EXIT_ERROR
+    assert "error:" in capsys.readouterr().out
+
+
+def test_check_is_translated(
+    repo: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    set_language(monkeypatch, "es")
+    cli.run(["start"])
+    clean_memory_bank(repo)
+    capsys.readouterr()
+    cli.run(["check"])
+    assert "coherente" in capsys.readouterr().out
+
+
+def test_check_strict_flag_is_accepted_once(repo: Path) -> None:
+    cli.run(["start"])
+    assert cli.run(["check", "--strict", "--strict"]) == cli.EXIT_ERROR
 
 
 # --- reset ----------------------------------------------------------------------------------

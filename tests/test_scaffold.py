@@ -306,3 +306,11 @@ def test_stop_handles_renamed_files(committed: Path) -> None:
 def test_stop_allows_when_there_is_no_memory_bank(repo: Path) -> None:
     (repo / "app.py").write_text("print(1)\n")
     assert scaffold.stop_decision(str(repo), {}) is None
+
+
+def test_stop_reason_covers_the_consistency_checklist() -> None:
+    reason = scaffold.STOP_REASON
+    assert "README" in reason
+    assert "Known issues" in reason
+    assert "activeContext.md" in reason
+    assert "memory-bank check" in reason

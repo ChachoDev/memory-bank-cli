@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `memory-bank check [--strict]`: a read-only consistency check for the memory bank. It reports
+  missing files or sections, unfilled placeholders, unrendered tokens, changelog drift in
+  `activeContext.md`, broken file references, "Known issues: None" contradicting TODO/FIXME
+  markers in the code, broken agent links, non-ISO dates, obvious secrets and an `instructions.md`
+  written by an older release. `--strict` also fails on warnings, so it can gate CI.
+- The `Stop` hook reason and `memory-bank/instructions.md` now include a consistency checklist:
+  update the docs when behaviour changes, verify every count, keep `activeContext.md` short, do
+  not fake "Known issues: None", and run `memory-bank check`.
 - JetBrains Junie support: `start` now creates `AGENTS.md` as a link to
   `memory-bank/instructions.md`, the file Junie reads as project guidelines. The scanner ignores
   the `.junie/` folder.

@@ -61,9 +61,13 @@ OPENCODE_INSTRUCTION: Final = f"{MEMORY_DIR}/*.md"
 TRACKED_FILES: Final = frozenset({f"{MEMORY_DIR}/activeContext.md", f"{MEMORY_DIR}/progress.md"})
 STOP_REASON: Final = (
     "Code changed after memory-bank/activeContext.md and memory-bank/progress.md were last "
-    "updated. Update both files now (current focus, dated recent changes, next steps, what works "
-    "and what is left), add an entry to memory-bank/decisionLog.md if you took an architectural "
-    "decision, then finish."
+    "updated. Before finishing: (1) update both files (current focus, dated recent changes, "
+    "next steps, what works, what is left); (2) add a decisionLog.md entry only if you took an "
+    "architectural decision; (3) if observable behaviour changed, update the user-facing docs "
+    "(README) and make their examples match the real output; (4) keep activeContext.md "
+    "present-focused and short, moving history to progress.md; (5) verify every file list and "
+    "count you write, and do not claim 'Known issues: None' unless docs and tests agree; "
+    "(6) run 'memory-bank check' and fix what it reports."
 )
 
 

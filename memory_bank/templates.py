@@ -2,6 +2,10 @@
 
 Templates are written in English because their main reader is the AI agent. Two placeholders are
 filled in at generation time: ``{{DETECTED_STACK}}`` and ``{{DATE}}``.
+
+``instructions.md`` carries a version marker so ``memory-bank check`` can tell a note written by
+an older release (which ``sync`` never overwrites) from a current one. Bump
+``INSTRUCTIONS_VERSION`` whenever the agent rules change in a way existing banks should adopt.
 """
 
 from __future__ import annotations
@@ -166,7 +170,11 @@ DECISION_LOG: Final = """# Decision Log
 - **Consequences:**
 """
 
+INSTRUCTIONS_VERSION: Final = "2"
+
 INSTRUCTIONS: Final = """# Memory Bank Instructions for AI Agents
+
+<!-- memory-bank: instructions v2 -->
 
 > This is the single source of truth for agent rules in this repository.
 > `AGENTS.md`, `CLAUDE.md`, `.cursorrules` and `.opencode/rules/memory.md` link to this file:
@@ -214,7 +222,20 @@ When the user says **"update memory bank"**, I review every file and update all 
 - Dates in ISO format (YYYY-MM-DD).
 - The memory bank is committed with the code it describes, in the same commit when possible.
 
-## 5. If the project uses Spec-Driven Development (SDD)
+## 5. Before finishing: consistency checklist
+
+A code change is not finished until the memory bank and the docs tell the truth. I check:
+
+- [ ] If I changed observable behaviour (CLI output, API, error messages), I updated the
+  user-facing docs (README or equivalent) and their examples show the real output.
+- [ ] Every file list, count and status I wrote is verified against the code, not guessed.
+- [ ] `activeContext.md` describes the present and stays short; older history is in
+  `progress.md` or `decisionLog.md`.
+- [ ] "Known issues" in `progress.md` is true: I do not write "None" while I know of a problem.
+- [ ] The memory bank uses one language consistently.
+- [ ] If `memory-bank check` is available, I ran it and it passes, or I explained every warning.
+
+## 6. If the project uses Spec-Driven Development (SDD)
 
 Some projects keep a spec-driven workflow beside the code: a folder of specs and,
 for each change, a proposal, a design and a task list. When that workflow exists,

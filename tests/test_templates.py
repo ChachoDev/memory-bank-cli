@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from memory_bank.templates import (
     DATE_PLACEHOLDER,
+    INSTRUCTIONS_VERSION,
     READ_ORDER,
     STACK_PLACEHOLDER,
     TEMPLATES,
@@ -58,3 +59,15 @@ def test_instructions_draw_a_boundary_with_sdd_without_naming_tools() -> None:
         assert tool not in instructions
     # Without SDD the section is inert, so it has to say so explicitly.
     assert "does not apply" in instructions
+
+
+def test_instructions_carry_a_version_marker() -> None:
+    instructions = TEMPLATES["instructions.md"]
+    assert f"<!-- memory-bank: instructions v{INSTRUCTIONS_VERSION} -->" in instructions
+
+
+def test_instructions_include_a_consistency_checklist() -> None:
+    instructions = TEMPLATES["instructions.md"]
+    assert "Before finishing: consistency checklist" in instructions
+    for item in ("README", "count", "activeContext.md", "Known issues", "memory-bank check"):
+        assert item in instructions

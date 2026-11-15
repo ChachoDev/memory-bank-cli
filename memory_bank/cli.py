@@ -1,4 +1,4 @@
-"""Command-line entry point: ``memory-bank help | start | sync | reset | hook <event>``."""
+"""Command-line entry point: ``memory-bank help | start | sync | check | reset | hook <event>``."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any, Final
 
-from memory_bank import __version__, scaffold
+from memory_bank import __version__, checks, scaffold
 from memory_bank.i18n import YES_ANSWERS, t
 from memory_bank.scanner import scan_project
 
@@ -86,6 +86,28 @@ def cmd_sync(args: list[str]) -> int:
         return EXIT_ERROR
     scaffold.sync_memory_bank(str(root), _scan(root))
     print(t("sync_done"))
+    return EXIT_OK
+
+
+def cmd_check(args: list[str]) -> int:
+    _reject_options(args, allowed=frozenset({"--strict"}))
+    strict = "--strict" in args
+    root = require_git_root(Path.cwd())
+    if not scaffold.memory_dir(root).is_dir():
+        _error(t("not_initialized", path=root))
+        return EXIT_ERROR
+    issues = checks.run_checks(str(root))
+    for issue in issues:
+        label = t("check_error_label") if issue.is_error else t("check_warning_label")
+        print(f"  {label}: {issue.message}")
+    if not issues:
+        print(t("check_ok"))
+        return EXIT_OK
+    errors = sum(1 for issue in issues if issue.is_error)
+    warnings = len(issues) - errors
+    print(t("check_summary", errors=errors, warnings=warnings))
+    if errors or (strict and warnings):
+        return EXIT_ERROR
     return EXIT_OK
 
 
@@ -171,6 +193,7 @@ COMMANDS: Final[dict[str, Callable[[list[str]], int]]] = {
     "--help": cmd_help,
     "start": cmd_start,
     "sync": cmd_sync,
+    "check": cmd_check,
     "reset": cmd_reset,
     "hook": cmd_hook,
 }
