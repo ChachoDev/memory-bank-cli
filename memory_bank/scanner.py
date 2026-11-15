@@ -99,6 +99,7 @@ IGNORED_DIRS: Final = frozenset(
         ".opencode",
         ".claude",
         ".agents",
+        ".junie",
     }
 )
 

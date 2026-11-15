@@ -36,6 +36,7 @@ Log = Callable[[str], None]
 MEMORY_DIR: Final = "memory-bank"
 INSTRUCTIONS_PATH: Final = Path(MEMORY_DIR) / INSTRUCTIONS_FILE
 BRIDGES: Final[tuple[Path, ...]] = (
+    Path("AGENTS.md"),
     Path(".cursorrules"),
     Path("CLAUDE.md"),
     Path(".opencode") / "rules" / "memory.md",

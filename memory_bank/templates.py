@@ -169,7 +169,7 @@ DECISION_LOG: Final = """# Decision Log
 INSTRUCTIONS: Final = """# Memory Bank Instructions for AI Agents
 
 > This is the single source of truth for agent rules in this repository.
-> `CLAUDE.md`, `.cursorrules` and `.opencode/rules/memory.md` link to this file:
+> `AGENTS.md`, `CLAUDE.md`, `.cursorrules` and `.opencode/rules/memory.md` link to this file:
 > edit `memory-bank/instructions.md`, never the links.
 
 I am an AI coding agent whose memory resets between sessions. The `memory-bank/` folder is my

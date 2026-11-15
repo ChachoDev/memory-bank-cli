@@ -4,7 +4,7 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 
 A Python CLI utility for automating and managing persistent AI Memory Banks across multiple
-IDEs and agents (Claude Code, Cursor, OpenCode, Pi), built for
+IDEs and agents (Claude Code, Cursor, OpenCode, Pi, JetBrains Junie), built for
 [`uv`](https://docs.astral.sh/uv/). Its messages come in English,
 Spanish, French and German, picked from your operating system's language.
 
@@ -163,7 +163,7 @@ $EDITOR memory-bank/projectbrief.md      # scope, goals, requirements
 $EDITOR memory-bank/productContext.md    # users and why the product exists
 
 # 2. Commit the memory bank together with the first code
-git add memory-bank CLAUDE.md .cursorrules .opencode .claude/settings.json opencode.json
+git add memory-bank AGENTS.md CLAUDE.md .cursorrules .opencode .claude/settings.json opencode.json
 git commit -m "chore: add memory bank"
 ```
 
@@ -191,10 +191,12 @@ The detected stack is a starting point, not a verdict. Correct or complete it by
 `projectbrief.md`, then fill in the scope, goals and users. The agent uses those files as its map
 of the project; the more accurate they are, the less you have to repeat yourself.
 
-If the repository already has its own `CLAUDE.md`, `.cursorrules` or
+If the repository already has its own `AGENTS.md`, `CLAUDE.md`, `.cursorrules` or
 `.opencode/rules/memory.md`, **memory-bank never overwrites them**. It reports the file as
 foreign and leaves it alone. To wire it to the single source of truth:
 
+- **Junie:** add a reference to `memory-bank/instructions.md` in your `AGENTS.md`, or make
+  `AGENTS.md` a symlink to it. Junie reads `AGENTS.md` at the start of every task.
 - **Claude Code:** add the line `@memory-bank/instructions.md` to your `CLAUDE.md`. Claude Code
   imports it.
 - **Cursor:** make `.cursorrules` a symlink to `memory-bank/instructions.md`, or copy its rules.
@@ -241,7 +243,7 @@ What it does:
 | A hook command is outdated | Rewrites it to the current `memory-bank hook ...` |
 | `opencode.json` lacks the instruction entry | Adds `"memory-bank/*.md"` |
 | A note already exists | **Keeps it untouched** |
-| `CLAUDE.md` or `.cursorrules` is foreign | Reports it, leaves it untouched |
+| `AGENTS.md`, `CLAUDE.md` or `.cursorrules` is foreign | Reports it, leaves it untouched |
 | A JSON config is invalid | Reports it, leaves it untouched |
 | `opencode.jsonc` is used | Skips it and asks you to add the entry manually |
 | You added extra `.md` notes | Keeps them and loads them after the standard ones |
@@ -271,6 +273,7 @@ your-repository/
 │   ├── progress.md
 │   ├── decisionLog.md
 │   └── instructions.md
+├── AGENTS.md -> memory-bank/instructions.md
 ├── CLAUDE.md -> memory-bank/instructions.md
 ├── .cursorrules -> memory-bank/instructions.md
 ├── .opencode/rules/memory.md -> memory-bank/instructions.md
@@ -289,6 +292,7 @@ overwritten.
 
 | Link | Read by |
 |------|---------|
+| `AGENTS.md` | JetBrains Junie and other tools that follow the AGENTS.md standard |
 | `CLAUDE.md` | Claude Code, Pi, and OpenCode as a fallback |
 | `.cursorrules` | Cursor |
 | `.opencode/rules/memory.md` | OpenCode |
@@ -297,9 +301,9 @@ The links are relative symlinks, so they survive moving or cloning the repositor
 
 ### Automatic hooks
 
-| Moment | Claude Code | OpenCode | Cursor, Pi |
-|--------|-------------|----------|------------|
-| Session start | `SessionStart` hook runs `memory-bank hook session-start`; its output, the whole memory bank, goes into the context | `opencode.json` → `"instructions": ["memory-bank/*.md"]` loads every file | `.cursorrules` or `CLAUDE.md` tells the agent to read `memory-bank/` first |
+| Moment | Claude Code | OpenCode | Cursor, Pi, Junie |
+|--------|-------------|----------|-------------------|
+| Session start | `SessionStart` hook runs `memory-bank hook session-start`; its output, the whole memory bank, goes into the context | `opencode.json` → `"instructions": ["memory-bank/*.md"]` loads every file | `.cursorrules` or `CLAUDE.md` tells Cursor and Pi to read `memory-bank/` first; Junie loads `AGENTS.md` at the start of every task |
 | After code changes / session end | `Stop` hook runs `memory-bank hook stop`: if a changed file is newer than `activeContext.md` or `progress.md`, the agent is told to update them before it finishes | Rule in `instructions.md` | Rule in `instructions.md` |
 
 Hook configuration is **merged** into existing `.claude/settings.json` and `opencode.json`; your
@@ -320,7 +324,7 @@ on.
 Commit the generated files with your code:
 
 ```bash
-git add memory-bank CLAUDE.md .cursorrules .opencode .claude/settings.json opencode.json
+git add memory-bank AGENTS.md CLAUDE.md .cursorrules .opencode .claude/settings.json opencode.json
 git commit -m "chore: add memory bank"
 ```
 
@@ -352,6 +356,7 @@ The templates stay in English because their main reader is the agent.
 | `The memory bank already exists` | `start` was run twice | Use `sync` to repair it or `reset` to start over |
 | `There is no memory bank` on `sync` | `start` was never run | Run `memory-bank start` |
 | `CLAUDE.md exists and is not managed` | You have your own file | Add `@memory-bank/instructions.md` to it, or link it yourself |
+| Junie does not load the rules | `AGENTS.md` is missing or is your own file | Run `sync`; if `AGENTS.md` is foreign, reference `memory-bank/instructions.md` from it |
 | `symlinks are not available` | OS or sandbox forbids them | Nothing to do: a marked copy was written; `sync` refreshes it |
 | `opencode.jsonc found` | JSONC is not edited | Add `"memory-bank/*.md"` to its `instructions` by hand |
 | `... is not valid JSON` | Broken config | Fix the JSON, then run `sync` |
@@ -382,7 +387,8 @@ The Memory Bank concept was created by **[Nick Baumann](https://github.com/nickb
 Markdown documents that an agent reads at the start of every session and updates at the end.
 
 This project is an independent, unofficial implementation of that idea: it extends the same file
-layout to Claude Code, Cursor, OpenCode and Pi, and automates the links and lifecycle hooks with
+layout to Claude Code, Cursor, OpenCode, Pi and JetBrains Junie, and automates the links and
+lifecycle hooks with
 a standard-library Python CLI. The concept and its vocabulary belong to Nick Baumann; the
 automation, templates, translations and code in this repository are ours.
 
@@ -459,7 +465,7 @@ Después:
 ```bash
 $EDITOR memory-bank/projectbrief.md      # alcance, objetivos, requisitos
 $EDITOR memory-bank/productContext.md    # usuarios y motivo del producto
-git add memory-bank CLAUDE.md .cursorrules .opencode .claude/settings.json opencode.json
+git add memory-bank AGENTS.md CLAUDE.md .cursorrules .opencode .claude/settings.json opencode.json
 git commit -m "chore: add memory bank"
 ```
 
@@ -484,9 +490,11 @@ memory-bank start
 El stack detectado es una pista, no una verdad absoluta: corrígelo o complétalo a mano en
 `projectbrief.md` y rellena el alcance, los objetivos y los usuarios.
 
-Si ya tienes tu propio `CLAUDE.md`, `.cursorrules` o `.opencode/rules/memory.md`, **no se
-sobrescribe nada**. Para conectarlo con la fuente única de reglas:
+Si ya tienes tu propio `AGENTS.md`, `CLAUDE.md`, `.cursorrules` o `.opencode/rules/memory.md`,
+**no se sobrescribe nada**. Para conectarlo con la fuente única de reglas:
 
+- **Junie:** añade una referencia a `memory-bank/instructions.md` en tu `AGENTS.md`, o haz que
+  `AGENTS.md` sea un symlink a ese fichero. Junie lee `AGENTS.md` al empezar cada tarea.
 - **Claude Code:** añade `@memory-bank/instructions.md` a tu `CLAUDE.md`.
 - **Cursor:** haz que `.cursorrules` sea un symlink a `memory-bank/instructions.md`, o copia sus
   reglas.
@@ -515,7 +523,7 @@ enlace, si una copia está desfasada o si un hook apunta a un comando antiguo.
 | Un hook está desactualizado | Lo reescribe con el comando actual |
 | `opencode.json` no tiene la entrada | Añade `"memory-bank/*.md"` |
 | La nota ya existe | **No la toca** |
-| `CLAUDE.md` o `.cursorrules` es ajeno | Lo reporta y no lo toca |
+| `AGENTS.md`, `CLAUDE.md` o `.cursorrules` es ajeno | Lo reporta y no lo toca |
 | Un JSON no es válido | Lo reporta y no lo toca |
 | Se usa `opencode.jsonc` | Lo omite y te pide añadir la entrada a mano |
 | Tienes notas `.md` adicionales | Las conserva y las carga después de las estándar |
@@ -544,6 +552,7 @@ tu-repositorio/
 │   ├── progress.md
 │   ├── decisionLog.md
 │   └── instructions.md
+├── AGENTS.md -> memory-bank/instructions.md
 ├── CLAUDE.md -> memory-bank/instructions.md
 ├── .cursorrules -> memory-bank/instructions.md
 ├── .opencode/rules/memory.md -> memory-bank/instructions.md
@@ -555,7 +564,7 @@ Donde el sistema no permite symlinks (Windows sin Developer Mode, algunas unidad
 sandboxes), se escribe una copia marcada que `sync` mantiene al día. Un fichero propio en esas
 rutas nunca se sobrescribe.
 
-**Enlaces:** `CLAUDE.md`, `.cursorrules` y `.opencode/rules/memory.md` apuntan a
+**Enlaces:** `AGENTS.md`, `CLAUDE.md`, `.cursorrules` y `.opencode/rules/memory.md` apuntan a
 `memory-bank/instructions.md` mediante symlinks relativos, así que sobreviven a un clonado o a
 mover el repositorio.
 
@@ -570,7 +579,7 @@ un JSON inválido se deja intacto y se reporta.
 Haz commit de los ficheros generados con tu código:
 
 ```bash
-git add memory-bank CLAUDE.md .cursorrules .opencode .claude/settings.json opencode.json
+git add memory-bank AGENTS.md CLAUDE.md .cursorrules .opencode .claude/settings.json opencode.json
 git commit -m "chore: add memory bank"
 ```
 
@@ -597,6 +606,7 @@ principal es el agente.
 | `The memory bank already exists` | `start` ejecutado dos veces | Usa `sync` para reparar o `reset` para empezar de cero |
 | `There is no memory bank` en `sync` | Nunca se ejecutó `start` | Ejecuta `memory-bank start` |
 | `CLAUDE.md exists and is not managed` | Tienes un fichero propio | Añade `@memory-bank/instructions.md` o enlázalo tú |
+| Junie no carga las reglas | Falta `AGENTS.md` o es un fichero tuyo | Ejecuta `sync`; si `AGENTS.md` es ajeno, referencia `memory-bank/instructions.md` desde él |
 | `symlinks are not available` | El sistema no permite symlinks | No hagas nada: se escribió una copia marcada que `sync` refresca |
 | `opencode.jsonc found` | JSONC no se edita | Añade `"memory-bank/*.md"` a `instructions` a mano |
 | `... is not valid JSON` | Configuración rota | Corrige el JSON y ejecuta `sync` |
@@ -673,10 +683,11 @@ six fichiers Markdown, les liens et les hooks. Sur un projet vide il indique
 TypeScript, Python, uv, Flutter/Dart, Rust, Go, Java, Kotlin, .NET, Ruby, PHP, Swift, Elixir,
 Docker, Terraform, etc.) et l'écrit dans `projectbrief.md`.
 
-Un `CLAUDE.md`, `.cursorrules` ou `.opencode/rules/memory.md` existant n'est **jamais**
-écrasé. Pour le relier : ajoutez `@memory-bank/instructions.md` à `CLAUDE.md`, pointez
-`.cursorrules` vers `memory-bank/instructions.md`, ou ajoutez `"memory-bank/*.md"` aux
-`instructions` d'`opencode.json` (`opencode.jsonc` n'est jamais modifié).
+Un `AGENTS.md`, `CLAUDE.md`, `.cursorrules` ou `.opencode/rules/memory.md` existant n'est
+**jamais** écrasé. Pour le relier : ajoutez une référence à `memory-bank/instructions.md` dans
+`AGENTS.md` (Junie), ajoutez `@memory-bank/instructions.md` à `CLAUDE.md`, pointez `.cursorrules`
+vers `memory-bank/instructions.md`, ou ajoutez `"memory-bank/*.md"` aux `instructions`
+d'`opencode.json` (`opencode.jsonc` n'est jamais modifié).
 
 Si `memory-bank/` existe déjà, `start` s'arrête. Utilisez `memory-bank sync` pour réparer sans
 toucher aux notes, ou `memory-bank reset` pour tout recréer (destructif, confirmation demandée ;
@@ -698,8 +709,8 @@ restaurer les notes supprimées.
 
 ### Équipe et CI
 
-Commitez `memory-bank/`, `CLAUDE.md`, `.cursorrules`, `.opencode/`, `.claude/settings.json` et
-`opencode.json` avec le code. Chaque coéquipier installe l'outil globalement pour les hooks ; sans
+Commitez `memory-bank/`, `AGENTS.md`, `CLAUDE.md`, `.cursorrules`, `.opencode/`,
+`.claude/settings.json` et `opencode.json` avec le code. Chaque coéquipier installe l'outil globalement pour les hooks ; sans
 lui, les fichiers restent utilisables et Claude Code affiche seulement une erreur non bloquante.
 Après un `git pull`, lancez `memory-bank sync`. Ne commitez pas `.venv/` et ne lancez pas `reset`
 en CI.
@@ -764,10 +775,11 @@ dann die sechs Markdown-Dateien, die Links und die Hooks. Bei einem leeren Proje
 TypeScript, Python, uv, Flutter/Dart, Rust, Go, Java, Kotlin, .NET, Ruby, PHP, Swift, Elixir,
 Docker, Terraform und mehr) und schreibt ihn in `projectbrief.md`.
 
-Eine vorhandene `CLAUDE.md`, `.cursorrules` oder `.opencode/rules/memory.md` wird **niemals**
-überschrieben. Zum Verbinden: `@memory-bank/instructions.md` in `CLAUDE.md` eintragen,
-`.cursorrules` auf `memory-bank/instructions.md` zeigen lassen oder `"memory-bank/*.md"` zu den
-`instructions` in `opencode.json` hinzufügen (`opencode.jsonc` wird nie bearbeitet).
+Eine vorhandene `AGENTS.md`, `CLAUDE.md`, `.cursorrules` oder `.opencode/rules/memory.md` wird
+**niemals** überschrieben. Zum Verbinden: verweise in `AGENTS.md` auf
+`memory-bank/instructions.md` (Junie), trage `@memory-bank/instructions.md` in `CLAUDE.md` ein,
+lasse `.cursorrules` auf `memory-bank/instructions.md` zeigen oder füge `"memory-bank/*.md"` zu
+den `instructions` in `opencode.json` hinzu (`opencode.jsonc` wird nie bearbeitet).
 
 Existiert `memory-bank/` bereits, bricht `start` ab. Nutze `memory-bank sync`, um ohne Änderung
 der Notizen zu reparieren, oder `memory-bank reset`, um alles neu zu erzeugen (destruktiv,
@@ -789,8 +801,8 @@ gelöschte Notizen wiederherstellen.
 
 ### Team und CI
 
-Committe `memory-bank/`, `CLAUDE.md`, `.cursorrules`, `.opencode/`, `.claude/settings.json` und
-`opencode.json` zusammen mit dem Code. Jedes Teammitglied installiert das Tool global für die
+Committe `memory-bank/`, `AGENTS.md`, `CLAUDE.md`, `.cursorrules`, `.opencode/`,
+`.claude/settings.json` und `opencode.json` zusammen mit dem Code. Jedes Teammitglied installiert das Tool global für die
 Hooks; ohne Installation bleiben die Dateien nutzbar und Claude Code meldet nur einen nicht
 blockierenden Fehler. Nach `git pull` `memory-bank sync` ausführen. `.venv/` nicht committen und
 `reset` nicht in CI ausführen.

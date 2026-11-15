@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- JetBrains Junie support: `start` now creates `AGENTS.md` as a link to
+  `memory-bank/instructions.md`, the file Junie reads as project guidelines. The scanner ignores
+  the `.junie/` folder.
 - GitHub issue forms for bug reports and feature requests, a pull request template, a code of
   conduct, a security policy, and `.gitattributes`/`.editorconfig` files.
 - `CREDITS.md` acknowledging Nick Baumann, creator of the Memory Bank concept, and Cline, the

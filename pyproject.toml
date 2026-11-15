@@ -8,7 +8,7 @@ license = { text = "MIT" }
 authors = [
     { name = "Victor M. Cañada Ojeda", email = "elchachodev@gmail.com" },
 ]
-keywords = ["ai", "agents", "memory-bank", "context-engineering", "claude", "cursor", "opencode"]
+keywords = ["ai", "agents", "memory-bank", "context-engineering", "claude", "cursor", "opencode", "junie"]
 classifiers = [
     "Environment :: Console",
     "License :: OSI Approved :: MIT License",

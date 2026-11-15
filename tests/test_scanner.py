@@ -63,7 +63,7 @@ def test_ignores_dependency_and_memory_folders(tmp_path: Path) -> None:
     assert scan_project(str(tmp_path))["has_code"] is False
 
 
-@pytest.mark.parametrize("folder", [".claude", ".opencode", ".agents"])
+@pytest.mark.parametrize("folder", [".claude", ".opencode", ".agents", ".junie"])
 def test_ignores_tool_generated_folders(tmp_path: Path, folder: str) -> None:
     """Skills and hooks written by agents are not project code."""
     skill = tmp_path / folder / "skills" / "some-skill"

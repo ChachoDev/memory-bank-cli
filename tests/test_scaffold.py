@@ -69,6 +69,13 @@ def test_links_point_relatively_to_instructions(repo: Path, bridge: Path) -> Non
     assert link.resolve() == (repo / INSTRUCTIONS).resolve()
 
 
+def test_agents_md_carries_the_junie_guidelines(repo: Path) -> None:
+    scaffold.create_memory_bank(str(repo), [], log=lambda _: None)
+    agents = repo / "AGENTS.md"
+    assert agents.is_symlink()
+    assert agents.read_text() == (repo / INSTRUCTIONS).read_text()
+
+
 def test_links_survive_moving_the_repository(repo: Path) -> None:
     scaffold.create_memory_bank(str(repo), [], log=lambda _: None)
     moved = repo.rename(repo.parent / "moved")
