@@ -352,12 +352,16 @@ def _check_dates(root: Path) -> list[Issue]:
     if not path.is_file():
         return []
     issues: list[Issue] = []
+    seen: set[str] = set()
     for line in _read(path).splitlines():
         match = DATE_RE.search(line)
-        if match and not ISO_DATE_RE.fullmatch(match.group(1)):
-            issues.append(
-                Issue(WARNING, t("check_date", path=_shown(root, path), value=match.group(1)))
-            )
+        if not match:
+            continue
+        value = match.group(1)
+        if ISO_DATE_RE.fullmatch(value) or value in seen:
+            continue
+        seen.add(value)
+        issues.append(Issue(WARNING, t("check_date", path=_shown(root, path), value=value)))
     return issues
 
 

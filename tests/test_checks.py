@@ -180,6 +180,16 @@ def test_a_non_iso_date_is_a_warning(repo: Path) -> None:
     assert _has_warning(repo, "non-ISO")
 
 
+def test_the_same_bad_date_is_reported_once(repo: Path) -> None:
+    _start(repo)
+    clean_memory_bank(repo)
+    path = repo / "memory-bank" / "decisionLog.md"
+    text = path.read_text().replace("2026-11-15", "15/11/2026")
+    path.write_text(text + "\n" + text[text.index("## ADR-001") :], encoding="utf-8")
+    mentions = [message for message in _messages(repo) if "non-ISO" in message]
+    assert len(mentions) == 1
+
+
 def test_errors_are_listed_before_warnings(repo: Path) -> None:
     _start(repo)
     clean_memory_bank(repo)
