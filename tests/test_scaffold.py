@@ -219,6 +219,7 @@ def test_session_context_is_empty_without_a_memory_bank(repo: Path) -> None:
 def test_session_context_includes_every_file_in_reading_order(repo: Path) -> None:
     scaffold.create_memory_bank(str(repo), [], log=lambda _: None)
     (repo / "memory-bank" / "apiNotes.md").write_text("# API notes\n")
+    (repo / "CLAUDE.md").unlink()
     context = scaffold.session_context(str(repo))
     order = [
         "instructions.md",
@@ -231,6 +232,20 @@ def test_session_context_includes_every_file_in_reading_order(repo: Path) -> Non
     ]
     positions = [context.index(f"<!-- memory-bank/{name} -->") for name in order]
     assert positions == sorted(positions)
+
+
+def test_session_context_skips_instructions_when_claude_md_carries_them(repo: Path) -> None:
+    scaffold.create_memory_bank(str(repo), [], log=lambda _: None)
+    context = scaffold.session_context(str(repo))
+    assert "<!-- memory-bank/instructions.md -->" not in context
+    assert "<!-- memory-bank/activeContext.md -->" in context
+
+
+def test_session_context_keeps_instructions_when_claude_md_is_gone(repo: Path) -> None:
+    scaffold.create_memory_bank(str(repo), [], log=lambda _: None)
+    (repo / "CLAUDE.md").unlink()
+    context = scaffold.session_context(str(repo))
+    assert "<!-- memory-bank/instructions.md -->" in context
 
 
 @pytest.fixture

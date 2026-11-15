@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The `Stop` hook reason and `memory-bank/instructions.md` now include a consistency checklist:
   update the docs when behaviour changes, verify every count, keep `activeContext.md` short, do
   not fake "Known issues: None", and run `memory-bank check`.
+- `check` now guards the context budget: it warns when a note passes 12,000 characters (about 3k
+  tokens) or the whole bank passes 40,000 (about 10k tokens), naming the size and the fix.
+- `hook session-start` no longer repeats `memory-bank/instructions.md` when `CLAUDE.md` already
+  points at it, saving about 1k tokens per Claude Code session.
 - JetBrains Junie support: `start` now creates `AGENTS.md` as a link to
   `memory-bank/instructions.md`, the file Junie reads as project guidelines. The scanner ignores
   the `.junie/` folder.

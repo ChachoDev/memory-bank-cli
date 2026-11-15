@@ -25,6 +25,14 @@ RECENT_CHANGES_LIMIT: Final = 6
 MAX_SCANNED_FILES: Final = 500
 MAX_FILE_BYTES: Final = 1_000_000
 
+# The whole bank enters every session's context, so its size is a feature, not a detail.
+# Roughly 4 characters per token: 12k characters is about 3k tokens for one note and 40k, about
+# 10k tokens for the bank, which leaves a wide margin on a 200k window while still catching a
+# bank that has turned into a changelog.
+NOTE_SIZE_LIMIT: Final = 12_000
+BANK_SIZE_LIMIT: Final = 40_000
+CHARS_PER_TOKEN: Final = 4
+
 REQUIRED_SECTIONS: Final[dict[str, tuple[str, ...]]] = {
     "projectbrief.md": (
         "## Overview",
@@ -365,6 +373,43 @@ def _check_dates(root: Path) -> list[Issue]:
     return issues
 
 
+def _check_sizes(root: Path) -> list[Issue]:
+    """Warn when a note, or the whole bank, is large enough to weigh on the context."""
+    directory = scaffold.memory_dir(root)
+    issues: list[Issue] = []
+    total = 0
+    for path in sorted(directory.glob("*.md")):
+        size = len(_read(path))
+        total += size
+        if size <= NOTE_SIZE_LIMIT:
+            continue
+        issues.append(
+            Issue(
+                WARNING,
+                t(
+                    "check_large_note",
+                    path=_shown(root, path),
+                    size=size,
+                    tokens=size // CHARS_PER_TOKEN,
+                    max=NOTE_SIZE_LIMIT,
+                ),
+            )
+        )
+    if total > BANK_SIZE_LIMIT:
+        issues.append(
+            Issue(
+                WARNING,
+                t(
+                    "check_large_bank",
+                    size=total,
+                    tokens=total // CHARS_PER_TOKEN,
+                    max=BANK_SIZE_LIMIT,
+                ),
+            )
+        )
+    return issues
+
+
 def run_checks(project_root: str) -> list[Issue]:
     """Return every consistency problem found in the memory bank, errors first."""
     root = Path(project_root).resolve()
@@ -380,4 +425,5 @@ def run_checks(project_root: str) -> list[Issue]:
     issues += _check_bridges(root)
     issues += _check_secrets(root)
     issues += _check_dates(root)
+    issues += _check_sizes(root)
     return sorted(issues, key=lambda issue: not issue.is_error)

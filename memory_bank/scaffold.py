@@ -41,6 +41,8 @@ BRIDGES: Final[tuple[Path, ...]] = (
     Path("CLAUDE.md"),
     Path(".opencode") / "rules" / "memory.md",
 )
+# The file the Claude Code runtime loads by itself; ``hook session-start`` runs only there.
+CLAUDE_BRIDGE: Final = Path("CLAUDE.md")
 COPY_MARKER: Final = (
     "<!-- memory-bank: copy of memory-bank/instructions.md. "
     "Edit that file and run 'memory-bank sync'. -->\n"
@@ -115,6 +117,17 @@ def _is_generated_copy(path: Path) -> bool:
 def _points_to_instructions(link: Path, root: Path) -> bool:
     target = (root / INSTRUCTIONS_PATH).resolve()
     return (link.parent / os.readlink(link)).resolve() == target
+
+
+def _instructions_loaded_elsewhere(root: Path) -> bool:
+    """True when ``CLAUDE.md`` already carries the instructions for the Claude Code runtime."""
+    link = root / CLAUDE_BRIDGE
+    if link.is_symlink():
+        try:
+            return _points_to_instructions(link, root)
+        except OSError:
+            return False
+    return link.is_file() and _is_generated_copy(link)
 
 
 def ensure_bridge(root: Path, relative_link: Path, log: Log = print) -> None:
@@ -264,13 +277,20 @@ def reset_memory_bank(
 
 
 def session_context(project_root: str) -> str:
-    """Return the memory bank as one Markdown document, in reading order."""
+    """Return the memory bank as one Markdown document, in reading order.
+
+    ``instructions.md`` is skipped when ``CLAUDE.md`` already points at it: the Claude Code runtime
+    loads that file by itself, so dumping it again would make the agent pay for the same ~1k tokens
+    twice in every session.
+    """
     directory = memory_dir(Path(project_root))
     if not directory.is_dir():
         return ""
     names = list(READ_ORDER) + sorted(
         p.name for p in directory.glob("*.md") if p.name not in READ_ORDER
     )
+    if _instructions_loaded_elsewhere(root=Path(project_root)):
+        names = [name for name in names if name != INSTRUCTIONS_FILE]
     sections = [
         "# Memory Bank (loaded automatically at session start; do not read it again)",
     ]

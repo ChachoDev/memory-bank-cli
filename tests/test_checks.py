@@ -190,6 +190,22 @@ def test_the_same_bad_date_is_reported_once(repo: Path) -> None:
     assert len(mentions) == 1
 
 
+def test_a_large_note_is_a_warning(repo: Path) -> None:
+    _start(repo)
+    clean_memory_bank(repo)
+    path = repo / "memory-bank" / "progress.md"
+    path.write_text(path.read_text() + "\n" + ("detalle " * 2_000), encoding="utf-8")
+    assert _has_warning(repo, "loaded into every session")
+
+
+def test_a_large_bank_is_a_warning(repo: Path) -> None:
+    _start(repo)
+    clean_memory_bank(repo)
+    for name in ("notes1.md", "notes2.md", "notes3.md", "notes4.md"):
+        (repo / "memory-bank" / name).write_text("linea\n" * 2_000, encoding="utf-8")
+    assert _has_warning(repo, "enters every session")
+
+
 def test_errors_are_listed_before_warnings(repo: Path) -> None:
     _start(repo)
     clean_memory_bank(repo)

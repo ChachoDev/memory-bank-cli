@@ -291,7 +291,7 @@ def test_hook_uses_claude_project_dir(
     monkeypatch.setenv("CLAUDE_PROJECT_DIR", str(repo))
     monkeypatch.chdir(tmp_path)
     cli.run(["hook", "session-start"])
-    assert "<!-- memory-bank/instructions.md -->" in capsys.readouterr().out
+    assert "<!-- memory-bank/projectbrief.md -->" in capsys.readouterr().out
 
 
 def test_hook_is_silent_outside_git(no_repo: Path, capsys: pytest.CaptureFixture[str]) -> None:

@@ -111,6 +111,14 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
             "{path} looks like it contains a secret ({kind}). Remove it before committing."
         ),
         "check_date": "{path} has a non-ISO date: {value}",
+        "check_large_note": (
+            "{path} is {size} characters (~{tokens} tokens) and is loaded into every session. "
+            "Keep it under {max}: move history to Git, compress old entries or split the file."
+        ),
+        "check_large_bank": (
+            "The memory bank is {size} characters (~{tokens} tokens) and enters every session. "
+            "Keep the whole bank under {max}: compress old entries and move history to Git."
+        ),
         "unknown_command": "Unknown command: {command}. Run 'memory-bank help'.",
         "unknown_option": "Unknown option: {option}. Run 'memory-bank help'.",
     },
@@ -208,6 +216,16 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
             "{path} parece contener un secreto ({kind}). Elimínalo antes de hacer commit."
         ),
         "check_date": "{path} tiene una fecha que no es ISO: {value}",
+        "check_large_note": (
+            "{path} ocupa {size} caracteres (~{tokens} tokens) y se carga en cada sesión. "
+            "Mantenlo por debajo de {max}: mueve el historial a Git, comprime entradas antiguas "
+            "o divide el fichero."
+        ),
+        "check_large_bank": (
+            "El Memory Bank ocupa {size} caracteres (~{tokens} tokens) y entra en cada sesión. "
+            "Mantén el banco entero por debajo de {max}: comprime entradas antiguas y mueve el "
+            "historial a Git."
+        ),
         "unknown_command": "Comando desconocido: {command}. Ejecuta 'memory-bank help'.",
         "unknown_option": "Opción desconocida: {option}. Ejecuta 'memory-bank help'.",
     },
@@ -314,6 +332,16 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
             "{path} semble contenir un secret ({kind}). Supprimez-le avant de committer."
         ),
         "check_date": "{path} contient une date non ISO : {value}",
+        "check_large_note": (
+            "{path} fait {size} caractères (~{tokens} jetons) et est chargé à chaque session. "
+            "Gardez-le sous {max} : déplacez l'historique dans Git, compressez les anciennes "
+            "entrées ou scindez le fichier."
+        ),
+        "check_large_bank": (
+            "Le Memory Bank fait {size} caractères (~{tokens} jetons) et entre dans chaque "
+            "session. Gardez l'ensemble sous {max} : compressez les anciennes entrées et "
+            "déplacez l'historique dans Git."
+        ),
         "unknown_command": "Commande inconnue : {command}. Exécutez 'memory-bank help'.",
         "unknown_option": "Option inconnue : {option}. Exécutez 'memory-bank help'.",
     },
@@ -421,6 +449,16 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
             "{path} scheint ein Geheimnis zu enthalten ({kind}). Entferne es vor dem Commit."
         ),
         "check_date": "{path} enthält ein Datum, das nicht ISO ist: {value}",
+        "check_large_note": (
+            "{path} hat {size} Zeichen (~{tokens} Tokens) und wird in jeder Sitzung geladen. "
+            "Halte die Datei unter {max}: verschiebe Historie nach Git, komprimiere alte "
+            "Einträge oder teile die Datei."
+        ),
+        "check_large_bank": (
+            "Die Memory Bank hat {size} Zeichen (~{tokens} Tokens) und geht in jede Sitzung ein. "
+            "Halte die gesamte Bank unter {max}: komprimiere alte Einträge und verschiebe "
+            "Historie nach Git."
+        ),
         "unknown_command": "Unbekannter Befehl: {command}. Führe 'memory-bank help' aus.",
         "unknown_option": "Unbekannte Option: {option}. Führe 'memory-bank help' aus.",
     },

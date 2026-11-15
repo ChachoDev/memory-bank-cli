@@ -282,6 +282,11 @@ warnings; fill it in and run `check --strict` before committing.
 rules. `check` warns about it and names the fix: ask the agent to merge the missing sections from the
 current template.
 
+The whole bank enters the agent's context in every session, so `check` also watches its size: it
+warns when one note passes 12,000 characters (about 3k tokens) or the bank passes 40,000 (about
+10k tokens), and both messages say what to do. When `decisionLog.md` fills up, compress old entries
+to one line each: Git keeps the detail.
+
 ### What `start` creates
 
 ```text
@@ -323,7 +328,7 @@ The links are relative symlinks, so they survive moving or cloning the repositor
 
 | Moment | Claude Code | OpenCode | Cursor, Pi, Junie |
 |--------|-------------|----------|-------------------|
-| Session start | `SessionStart` hook runs `memory-bank hook session-start`; its output, the whole memory bank, goes into the context | `opencode.json` → `"instructions": ["memory-bank/*.md"]` loads every file | `.cursorrules` or `CLAUDE.md` tells Cursor and Pi to read `memory-bank/` first; Junie loads `AGENTS.md` at the start of every task |
+| Session start | `SessionStart` hook runs `memory-bank hook session-start`; its output, every note except `instructions.md` (which `CLAUDE.md` already carries), goes into the context | `opencode.json` → `"instructions": ["memory-bank/*.md"]` loads every file | `.cursorrules` or `CLAUDE.md` tells Cursor and Pi to read `memory-bank/` first; Junie loads `AGENTS.md` at the start of every task |
 | After code changes / session end | `Stop` hook runs `memory-bank hook stop`: if a changed file is newer than `activeContext.md` or `progress.md`, the agent is told to update them before it finishes | Rule in `instructions.md` | Rule in `instructions.md` |
 
 Hook configuration is **merged** into existing `.claude/settings.json` and `opencode.json`; your
@@ -586,8 +591,13 @@ recién creado suele pasar con avisos de placeholders; complétalo y ejecuta `ch
 hacer commit.
 
 `sync` nunca reescribe tus notas, así que un `instructions.md` creado por una versión anterior
-conserva sus reglas antiguas. `check` lo avisa e indica la solución: pide al agente que fusione las
-secciones que faltan desde la plantilla actual.
+conserva sus reglas antiguas. `check` lo avisa e indica la solución: pide al agente que copie las
+secciones nuevas y el marcador de versión de la plantilla actual.
+
+El banco entero entra en el contexto del agente en cada sesión, así que `check` también vigila su
+tamaño: avisa cuando una nota pasa de 12.000 caracteres (unos 3k tokens) o el banco de 40.000
+(unos 10k tokens), y ambos mensajes dicen qué hacer. Cuando `decisionLog.md` se llena, comprime las
+entradas antiguas a una línea: el detalle ya está en Git.
 
 ### Qué crea `start`
 
@@ -616,11 +626,12 @@ rutas nunca se sobrescribe.
 `memory-bank/instructions.md` mediante symlinks relativos, así que sobreviven a un clonado o a
 mover el repositorio.
 
-**Hooks:** en Claude Code, `SessionStart` carga el Memory Bank en el contexto y `Stop` obliga a
-actualizar `activeContext.md` y `progress.md` tras cambiar código (bloquea como máximo una vez por
-turno, así que no entra en bucle). En OpenCode, `opencode.json` carga `memory-bank/*.md` en cada
-sesión. En Cursor y Pi, las reglas de `instructions.md`. La configuración se mezcla con la tuya;
-un JSON inválido se deja intacto y se reporta.
+**Hooks:** en Claude Code, `SessionStart` carga el Memory Bank en el contexto (todas las notas
+menos `instructions.md`, que ya llega por `CLAUDE.md`, para no pagar dos veces los mismos tokens) y
+`Stop` obliga a actualizar `activeContext.md` y `progress.md` tras cambiar código (bloquea como
+máximo una vez por turno, así que no entra en bucle). En OpenCode, `opencode.json` carga
+`memory-bank/*.md` en cada sesión. En Cursor y Pi, las reglas de `instructions.md`. La configuración
+se mezcla con la tuya; un JSON inválido se deja intacto y se reporta.
 
 ### Equipo y CI
 
@@ -764,7 +775,9 @@ restaurer les notes supprimées.
 `check` valide le Memory Bank sans rien modifier : `memory-bank check` signale les incohérences
 (fichiers ou sections manquants, placeholders, liens cassés, dates non ISO, secrets évidents,
 `instructions.md` écrit par une version plus ancienne) et `--strict` échoue aussi sur les
-avertissements.
+avertissements. Il surveille aussi le poids du Memory Bank, qui entre dans le contexte à chaque
+session : une note au-delà de 12 000 caractères (~3k jetons) ou l'ensemble au-delà de 40 000
+(~10k jetons) déclenche un avertissement.
 
 ### Équipe et CI
 
@@ -861,7 +874,9 @@ gelöschte Notizen wiederherstellen.
 `check` prüft die Memory Bank, ohne etwas zu ändern: `memory-bank check` meldet Unstimmigkeiten
 (fehlende Dateien oder Abschnitte, Platzhalter, defekte Links, Nicht-ISO-Daten, offensichtliche
 Geheimnisse, ein `instructions.md` aus einer älteren Version), `--strict` schlägt auch bei
-Warnungen fehl.
+Warnungen fehl. Es achtet auch auf die Größe, denn die Bank geht in jeder Sitzung in den Kontext
+ein: eine Datei über 12.000 Zeichen (~3k Tokens) oder die Bank über 40.000 (~10k Tokens) löst eine
+Warnung aus.
 
 ### Team und CI
 
