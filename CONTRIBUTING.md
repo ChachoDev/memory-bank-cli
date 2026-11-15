@@ -73,9 +73,24 @@ chore: bump the CI matrix
 
 ## Reporting bugs
 
-Include the operating system, Python version, the exact command, what you expected and what
-happened instead. If the problem involves generated files, paste the relevant file or the
-output of `memory-bank sync`.
+Open an issue with the **Bug report** form and include the operating system, Python version, the
+exact command, what you expected and what happened instead. If the problem involves generated
+files, paste the relevant file or the output of `memory-bank sync`.
+
+## Code of conduct
+
+Everyone who takes part in this project is expected to follow the
+[Code of Conduct](CODE_OF_CONDUCT.md). Report unacceptable behaviour to the address listed there.
+
+## Security
+
+Please do not open a public issue for security problems. Follow [SECURITY.md](SECURITY.md) and
+send the details by email.
+
+## Credits
+
+The Memory Bank concept was created by Nick Baumann for Cline. See [CREDITS.md](CREDITS.md) for
+the original sources and the full acknowledgements.
 
 ## License
 

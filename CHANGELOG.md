@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- GitHub issue forms for bug reports and feature requests, a pull request template, a code of
+  conduct, a security policy, and `.gitattributes`/`.editorconfig` files.
+- `CREDITS.md` acknowledging Nick Baumann, creator of the Memory Bank concept, and Cline, the
+  project it was originally designed for.
+
+### Changed
+
+- Rewrote the README as a detailed guide: global, per-project and ephemeral installation, a
+  step-by-step walkthrough for new and existing repositories, what `start`, `sync` and `reset`
+  do, the team/CI workflow, hook details and a troubleshooting table. It now credits the original
+  Memory Bank idea in every language and links to `CREDITS.md`.
+
 ## [1.0.0] - 2026-11-09
 
 ### Added
