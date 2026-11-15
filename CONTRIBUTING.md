@@ -26,7 +26,8 @@ uv tool install --editable .
 
 ## Checks before opening a pull request
 
-CI runs all of these on Python 3.10 and 3.13, so run them locally first:
+This project does not use GitHub Actions: the checks are run locally, and CI is not required.
+Run all of these on Python 3.10 or newer before opening a pull request:
 
 ```bash
 uvx ruff check .
@@ -60,7 +61,7 @@ feat: add Dart stack detection
 fix: do not overwrite an existing CLAUDE.md
 docs: clarify the OpenCode hook section
 test: cover reset in a non-Git directory
-chore: bump the CI matrix
+chore: refresh uv.lock
 ```
 
 ## Pull requests

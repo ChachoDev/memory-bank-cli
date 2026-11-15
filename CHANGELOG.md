@@ -21,6 +21,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   do, the team/CI workflow, hook details and a troubleshooting table. It now credits the original
   Memory Bank idea in every language and links to `CREDITS.md`.
 
+### Removed
+
+- The GitHub Actions CI workflow. The checks listed in `CONTRIBUTING.md` run locally, so the
+  project no longer uses Actions minutes.
+
 ## [1.0.0] - 2026-11-09
 
 ### Added
