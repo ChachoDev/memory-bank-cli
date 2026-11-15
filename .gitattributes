@@ -1,0 +1,22 @@
+# Normalise line endings in the repository; check out native endings where Git needs them.
+* text=auto eol=lf
+
+*.py      text diff=python
+*.md      text
+*.toml    text
+*.json    text
+*.yml     text
+*.yaml    text
+*.lock    text
+uv.lock   text
+*.sh      text eol=lf
+
+*.png     binary
+*.jpg     binary
+*.jpeg    binary
+*.gif     binary
+*.ico     binary
+*.pdf     binary
+*.zip     binary
+*.woff    binary
+*.woff2   binary

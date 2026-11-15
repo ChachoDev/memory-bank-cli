@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation and usage
+    url: https://github.com/ChachoDev/memory-bank-cli#readme
+    about: Installation, commands, hooks, supported agents and languages.
+  - name: Contributing guide
+    url: https://github.com/ChachoDev/memory-bank-cli/blob/main/CONTRIBUTING.md
+    about: How to set up the project, run the checks and open a pull request.
+  - name: The original Memory Bank idea
+    url: https://docs.cline.bot/features/memory-bank
+    about: The Memory Bank concept created by Nick Baumann for Cline, which this project builds on.
