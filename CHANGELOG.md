@@ -21,6 +21,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   tokens) or the whole bank passes 40,000 (about 10k tokens), naming the size and the fix.
 - `hook session-start` no longer repeats `memory-bank/instructions.md` when `CLAUDE.md` already
   points at it, saving about 1k tokens per Claude Code session.
+- The `instructions.md` template (now v3) explains how to compress the decision log when `check`
+  reports it: the decision and the constraint it imposes stay, the deliberation goes back to Git
+  history, and the pointer `git log -p memory-bank/decisionLog.md` keeps the full text one
+  command away. Banks written by an older template get the version warning from `check`.
 - JetBrains Junie support: `start` now creates `AGENTS.md` as a link to
   `memory-bank/instructions.md`, the file Junie reads as project guidelines. The scanner ignores
   the `.junie/` folder.

@@ -170,11 +170,11 @@ DECISION_LOG: Final = """# Decision Log
 - **Consequences:**
 """
 
-INSTRUCTIONS_VERSION: Final = "2"
+INSTRUCTIONS_VERSION: Final = "3"
 
 INSTRUCTIONS: Final = """# Memory Bank Instructions for AI Agents
 
-<!-- memory-bank: instructions v2 -->
+<!-- memory-bank: instructions v3 -->
 
 > This is the single source of truth for agent rules in this repository.
 > `AGENTS.md`, `CLAUDE.md`, `.cursorrules` and `.opencode/rules/memory.md` link to this file:
@@ -218,6 +218,10 @@ When the user says **"update memory bank"**, I review every file and update all 
 
 - Concise and factual: these files are loaded into every session's context.
 - `activeContext.md` describes the present; move history into `progress.md` or `decisionLog.md`.
+- The bank stays small: it enters every session's context. When `memory-bank check` reports a
+  note that is too large, I compress the oldest `decisionLog.md` entries to one line each:
+  context, alternatives and consequences go; the decision and the constraint it imposes stay.
+  Never a bare title, and the pointer `git log -p memory-bank/decisionLog.md` stays with it.
 - Never write secrets, tokens, credentials or personal data in the memory bank.
 - Dates in ISO format (YYYY-MM-DD).
 - The memory bank is committed with the code it describes, in the same commit when possible.
@@ -232,6 +236,7 @@ A code change is not finished until the memory bank and the docs tell the truth.
 - [ ] `activeContext.md` describes the present and stays short; older history is in
   `progress.md` or `decisionLog.md`.
 - [ ] "Known issues" in `progress.md` is true: I do not write "None" while I know of a problem.
+- [ ] The bank is still small: I compressed old entries instead of letting a note grow.
 - [ ] The memory bank uses one language consistently.
 - [ ] If `memory-bank check` is available, I ran it and it passes, or I explained every warning.
 

@@ -66,6 +66,13 @@ def test_instructions_carry_a_version_marker() -> None:
     assert f"<!-- memory-bank: instructions v{INSTRUCTIONS_VERSION} -->" in instructions
 
 
+def test_instructions_explain_how_to_compress_the_decision_log() -> None:
+    instructions = TEMPLATES["instructions.md"]
+    assert "compress the oldest `decisionLog.md` entries" in instructions
+    assert "git log -p memory-bank/decisionLog.md" in instructions
+    assert "Never a bare title" in instructions
+
+
 def test_instructions_include_a_consistency_checklist() -> None:
     instructions = TEMPLATES["instructions.md"]
     assert "Before finishing: consistency checklist" in instructions

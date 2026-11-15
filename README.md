@@ -284,8 +284,10 @@ current template.
 
 The whole bank enters the agent's context in every session, so `check` also watches its size: it
 warns when one note passes 12,000 characters (about 3k tokens) or the bank passes 40,000 (about
-10k tokens), and both messages say what to do. When `decisionLog.md` fills up, compress old entries
-to one line each: Git keeps the detail.
+10k tokens), and both messages say what to do. The fix is compression, not deletion: when
+`decisionLog.md` fills up, the oldest entries shrink to one line each, keeping the decision and the
+constraint it imposes and dropping the deliberation. `instructions.md` spells that rule out, and
+`git log -p memory-bank/decisionLog.md` brings the full text back whenever an agent needs it.
 
 ### What `start` creates
 
@@ -596,8 +598,10 @@ secciones nuevas y el marcador de versión de la plantilla actual.
 
 El banco entero entra en el contexto del agente en cada sesión, así que `check` también vigila su
 tamaño: avisa cuando una nota pasa de 12.000 caracteres (unos 3k tokens) o el banco de 40.000
-(unos 10k tokens), y ambos mensajes dicen qué hacer. Cuando `decisionLog.md` se llena, comprime las
-entradas antiguas a una línea: el detalle ya está en Git.
+(unos 10k tokens), y ambos mensajes dicen qué hacer. La solución es comprimir, no borrar: cuando
+`decisionLog.md` se llena, las entradas más antiguas pasan a una línea, conservando la decisión y la
+restricción que impone y soltando la deliberación. `instructions.md` recoge esa regla, y
+`git log -p memory-bank/decisionLog.md` recupera el texto completo cuando un agente lo necesita.
 
 ### Qué crea `start`
 
@@ -777,7 +781,10 @@ restaurer les notes supprimées.
 `instructions.md` écrit par une version plus ancienne) et `--strict` échoue aussi sur les
 avertissements. Il surveille aussi le poids du Memory Bank, qui entre dans le contexte à chaque
 session : une note au-delà de 12 000 caractères (~3k jetons) ou l'ensemble au-delà de 40 000
-(~10k jetons) déclenche un avertissement.
+(~10k jetons) déclenche un avertissement. Le remède est la compression, jamais la suppression :
+les plus anciennes entrées de `decisionLog.md` se réduisent à une ligne, la décision et sa
+contrainte restent, la délibération part dans l'historique Git (`git log -p
+memory-bank/decisionLog.md`).
 
 ### Équipe et CI
 
@@ -876,7 +883,9 @@ gelöschte Notizen wiederherstellen.
 Geheimnisse, ein `instructions.md` aus einer älteren Version), `--strict` schlägt auch bei
 Warnungen fehl. Es achtet auch auf die Größe, denn die Bank geht in jeder Sitzung in den Kontext
 ein: eine Datei über 12.000 Zeichen (~3k Tokens) oder die Bank über 40.000 (~10k Tokens) löst eine
-Warnung aus.
+Warnung aus. Die Lösung ist Komprimieren, nicht Löschen: die ältesten Einträge in
+`decisionLog.md` schrumpfen auf eine Zeile, Entscheidung und Einschränkung bleiben, die Abwägung
+geht in die Git-Historie (`git log -p memory-bank/decisionLog.md`).
 
 ### Team und CI
 
