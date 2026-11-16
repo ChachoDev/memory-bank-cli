@@ -36,7 +36,9 @@ uvx mypy --strict memory_bank
 uv run pytest
 ```
 
-Run `uvx ruff format .` to fix formatting instead of editing it by hand.
+`uvx` runs `ruff` and `mypy` directly from PyPI without installing them as project dependencies —
+no need to add them to `pyproject.toml`. Run `uvx ruff format .` to fix formatting instead of
+editing it by hand.
 
 ## Project layout
 

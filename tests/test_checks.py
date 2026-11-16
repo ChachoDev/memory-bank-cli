@@ -139,10 +139,6 @@ def test_known_issues_none_with_code_markers_is_a_warning(repo: Path, marker: st
         "No known issues.",
         "None known.",
         "No problems.",
-        "Sin problemas conocidos.",
-        "No hay problemas conocidos.",
-        "Aucun problème connu.",
-        "Keine bekannten Probleme.",
         "N/A",
     ],
 )

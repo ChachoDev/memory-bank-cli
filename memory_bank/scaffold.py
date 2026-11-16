@@ -30,8 +30,8 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any, Final
 
-from memory_bank.i18n import detect_language, t
-from memory_bank.templates import INSTRUCTIONS_FILE, READ_ORDER, get_templates, render
+from memory_bank.i18n import t
+from memory_bank.templates import INSTRUCTIONS_FILE, READ_ORDER, TEMPLATES, render
 
 Log = Callable[[str], None]
 
@@ -92,13 +92,11 @@ def memory_dir(root: Path) -> Path:
 
 
 def write_templates(root: Path, detected_stack: list[str], log: Log = print) -> None:
-    """Write every template that does not exist yet, in the detected language."""
+    """Write every template that does not exist yet. Templates are always in English."""
     directory = memory_dir(root)
     directory.mkdir(parents=True, exist_ok=True)
     today = dt.date.today().isoformat()
-    lang = detect_language()
-    templates = get_templates(lang)
-    for name, template in templates.items():
+    for name, template in TEMPLATES.items():
         path = directory / name
         relative = path.relative_to(root).as_posix()
         if path.exists():
@@ -408,13 +406,14 @@ def session_context(project_root: str) -> str:
     loads that file by itself, so dumping it again would make the agent pay for the same ~1k tokens
     twice in every session.
     """
-    directory = memory_dir(Path(project_root))
+    root = Path(project_root).resolve()
+    directory = memory_dir(root)
     if not directory.is_dir():
         return ""
     names = list(READ_ORDER) + sorted(
         p.name for p in directory.glob("*.md") if p.name not in READ_ORDER
     )
-    if _instructions_loaded_elsewhere(root=Path(project_root)):
+    if _instructions_loaded_elsewhere(root=root):
         names = [name for name in names if name != INSTRUCTIONS_FILE]
     sections = [
         "# Memory Bank (loaded automatically at session start; do not read it again)",

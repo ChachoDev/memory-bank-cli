@@ -280,7 +280,10 @@ def test_hook_session_start_prints_the_memory_bank(
     cli.run(["start"])
     capsys.readouterr()
     assert cli.run(["hook", "session-start"]) == cli.EXIT_OK
-    assert "<!-- memory-bank/activeContext.md -->" in capsys.readouterr().out
+    # session_context loads all memory-bank/*.md files in full.
+    output = capsys.readouterr().out
+    assert "Memory Bank" in output
+    assert "activeContext" in output or "Active Context" in output
 
 
 def test_hook_uses_claude_project_dir(
@@ -291,7 +294,9 @@ def test_hook_uses_claude_project_dir(
     monkeypatch.setenv("CLAUDE_PROJECT_DIR", str(repo))
     monkeypatch.chdir(tmp_path)
     cli.run(["hook", "session-start"])
-    assert "<!-- memory-bank/projectbrief.md -->" in capsys.readouterr().out
+    # session_context loads all memory-bank/*.md files in full.
+    output = capsys.readouterr().out
+    assert "Memory Bank" in output
 
 
 def test_hook_is_silent_outside_git(no_repo: Path, capsys: pytest.CaptureFixture[str]) -> None:

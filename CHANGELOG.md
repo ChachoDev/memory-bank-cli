@@ -5,13 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- Memory bank templates are always generated in English regardless of the user's system language.
+  The CLI messages remain translated (English, Spanish, French, German). This avoids inconsistencies
+  when multiple users with different system languages share the same repository.
+
+### Removed
+
+- Multilingual template variants (Spanish, French, German). Only English templates remain.
+
 ## [1.2.0] - 2026-11-16
 
 ### Added
 
-- **Multilingual templates**: `start` and `reset` now generate the Memory Bank Markdown files
-  in the user's detected language (English, Spanish, French, German). The template language
-  follows the same detection order as CLI messages: `MEMORY_BANK_LANG`, then system locale.
 - **Framework detection**: the scanner now reads dependency manifests (`package.json`,
   `pyproject.toml`, `requirements.txt`, `Cargo.toml`, `go.mod`, `build.gradle`) to detect
   frameworks such as React, Next.js, Vue, Express, Django, FastAPI, Flask, PyTorch, Actix,

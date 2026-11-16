@@ -19,7 +19,7 @@ Original sources:
 - [Cline documentation: Memory Bank](https://docs.cline.bot/features/memory-bank).
 
 This project takes that idea beyond Cline: it generates the same kind of Markdown memory for
-Claude Code, Cursor, OpenCode and Pi, links every agent's rules file to a single
+Claude Code, Cursor, OpenCode, Pi and JetBrains Junie, links every agent's rules file to a single
 `instructions.md`, and installs lifecycle hooks, all through a small standard-library Python CLI.
 
 The concept, its vocabulary and the original file layout belong to Nick Baumann. The automation,
@@ -29,4 +29,5 @@ templates, translations, hooks and code in this repository are ours.
 
 - **Nick Baumann** and the **Cline** community, for creating, documenting and popularising the
   Memory Bank pattern.
-- The Claude Code, Cursor, OpenCode and Pi teams, for their hook and instruction-file APIs.
+- The Claude Code, Cursor, OpenCode, Pi and JetBrains Junie teams, for their hook and
+  instruction-file APIs.

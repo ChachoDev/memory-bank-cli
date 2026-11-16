@@ -1,15 +1,11 @@
 from __future__ import annotations
 
-import pytest
-
 from memory_bank.templates import (
     DATE_PLACEHOLDER,
     INSTRUCTIONS_VERSION,
     READ_ORDER,
     STACK_PLACEHOLDER,
-    SUPPORTED_TEMPLATE_LANGS,
     TEMPLATES,
-    get_templates,
     render,
 )
 
@@ -97,135 +93,9 @@ def test_instructions_include_a_consistency_checklist() -> None:
         assert item in instructions
 
 
-# ---------------------------------------------------------------------------
-# Multilingual templates
-# ---------------------------------------------------------------------------
-
-
-def test_supported_langs_match_i18n() -> None:
-    assert SUPPORTED_TEMPLATE_LANGS == ("en", "es", "fr", "de")
-
-
-def test_get_templates_returns_six_files_for_each_lang() -> None:
-    for lang in SUPPORTED_TEMPLATE_LANGS:
-        templates = get_templates(lang)
-        assert set(templates) == EXPECTED_FILES, lang
-
-
-def test_get_templates_falls_back_to_english() -> None:
-    unknown = get_templates("xx")
-    assert unknown is TEMPLATES
-
-
-def test_every_lang_template_starts_with_a_title() -> None:
-    for lang in SUPPORTED_TEMPLATE_LANGS:
-        templates = get_templates(lang)
-        for name, template in templates.items():
-            assert template.startswith("# "), f"{lang} / {name}"
-
-
-def test_render_fills_placeholders_in_every_lang() -> None:
-    for lang in SUPPORTED_TEMPLATE_LANGS:
-        templates = get_templates(lang)
-        for template in templates.values():
-            rendered = render(template, ["Rust", "Docker"], "2026-11-09")
-            assert STACK_PLACEHOLDER not in rendered, f"{lang} stack placeholder"
-            assert DATE_PLACEHOLDER not in rendered, f"{lang} date placeholder"
-
-
-def test_instructions_version_marker_in_every_lang() -> None:
-    for lang in SUPPORTED_TEMPLATE_LANGS:
-        templates = get_templates(lang)
-        instructions = templates["instructions.md"]
-        assert f"<!-- memory-bank: instructions v{INSTRUCTIONS_VERSION} -->" in instructions, lang
-
-
-def test_decision_log_has_adr_in_every_lang() -> None:
-    for lang in SUPPORTED_TEMPLATE_LANGS:
-        templates = get_templates(lang)
-        decision_log = templates["decisionLog.md"]
-        assert "## ADR-001:" in decision_log, lang
-
-
-@pytest.mark.parametrize(
-    ("lang", "marker"),
-    [
-        ("en", "Project Brief"),
-        ("es", "Resumen del Proyecto"),
-        ("fr", "Résumé du Projet"),
-        ("de", "Projektübersicht"),
-    ],
-)
-def test_project_brief_title_matches_language(lang: str, marker: str) -> None:
-    templates = get_templates(lang)
-    assert f"# {marker}" in templates["projectbrief.md"]
-
-
-@pytest.mark.parametrize(
-    ("lang", "marker"),
-    [
-        ("en", "Product Context"),
-        ("es", "Contexto del Producto"),
-        ("fr", "Contexte du Produit"),
-        ("de", "Produktkontext"),
-    ],
-)
-def test_product_context_title_matches_language(lang: str, marker: str) -> None:
-    templates = get_templates(lang)
-    assert f"# {marker}" in templates["productContext.md"]
-
-
-@pytest.mark.parametrize(
-    ("lang", "marker"),
-    [
-        ("en", "Active Context"),
-        ("es", "Contexto Activo"),
-        ("fr", "Contexte Actif"),
-        ("de", "Aktueller Kontext"),
-    ],
-)
-def test_active_context_title_matches_language(lang: str, marker: str) -> None:
-    templates = get_templates(lang)
-    assert f"# {marker}" in templates["activeContext.md"]
-
-
-@pytest.mark.parametrize(
-    ("lang", "marker"),
-    [
-        ("en", "Progress"),
-        ("es", "Progreso"),
-        ("fr", "Progression"),
-        ("de", "Fortschritt"),
-    ],
-)
-def test_progress_title_matches_language(lang: str, marker: str) -> None:
-    templates = get_templates(lang)
-    assert f"# {marker}" in templates["progress.md"]
-
-
-@pytest.mark.parametrize(
-    ("lang", "marker"),
-    [
-        ("en", "Decision Log"),
-        ("es", "Registro de Decisiones"),
-        ("fr", "Journal des Décisions"),
-        ("de", "Entscheidungsprotokoll"),
-    ],
-)
-def test_decision_log_title_matches_language(lang: str, marker: str) -> None:
-    templates = get_templates(lang)
-    assert f"# {marker}" in templates["decisionLog.md"]
-
-
-@pytest.mark.parametrize(
-    ("lang", "marker"),
-    [
-        ("en", "Memory Bank Instructions for AI Agents"),
-        ("es", "Instrucciones del Memory Bank para Agentes de IA"),
-        ("fr", "Instructions du Memory Bank pour les Agents IA"),
-        ("de", "Memory-Bank-Anweisungen für KI-Agenten"),
-    ],
-)
-def test_instructions_title_matches_language(lang: str, marker: str) -> None:
-    templates = get_templates(lang)
-    assert f"# {marker}" in templates["instructions.md"]
+def test_templates_are_always_english() -> None:
+    """Templates are generated in English regardless of system language."""
+    brief = TEMPLATES["projectbrief.md"]
+    assert "# Project Brief" in brief
+    assert "## Overview" in brief
+    assert "## Goals" in brief
