@@ -140,7 +140,9 @@ PROGRESS: Final = """# Progress
 
 DECISION_LOG: Final = """# Decision Log
 
-> Architectural decisions, newest last. Never rewrite an entry: add a new one that supersedes it.
+> Architectural decisions, newest last. Never rewrite an entry to change its meaning: add a new one
+> that supersedes it. Compression under the size budget (see `instructions.md`) is the only
+> exception: the decision and its constraint stay, the deliberation goes to Git history.
 > Format: context, decision, alternatives considered, consequences.
 
 ## ADR-001: Keep project memory in Markdown files versioned with Git
@@ -160,14 +162,7 @@ DECISION_LOG: Final = """# Decision Log
   - Any tool that reads files can use it; no service to run.
   - Files must stay concise, because they are loaded into the agent's context window.
 
-## ADR-002: _Title_
-
-- **Date:**
-- **Status:** Proposed | Accepted | Superseded by ADR-xxx
-- **Context:**
-- **Decision:**
-- **Alternatives considered:**
-- **Consequences:**
+<!-- Next decision: copy the shape above, use the next ADR number and keep the newest last. -->
 """
 
 INSTRUCTIONS_VERSION: Final = "3"

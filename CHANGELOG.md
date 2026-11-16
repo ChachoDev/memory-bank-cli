@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- The `decisionLog.md` template now presents compression under the size budget as the only
+  exception to "never rewrite an entry", so it no longer contradicts `instructions.md`. It also
+  dropped the empty ADR-002 skeleton that `check` reported as an unfilled placeholder.
+- The README says exactly what `check` can prove: dates are checked in `decisionLog.md`, and the
+  CI note no longer claims it detects drift in the docs.
+
+### Fixed
+
+- `check` now recognizes "No known issues", "No problems" and their Spanish, French and German
+  equivalents, so the TODO/FIXME contradiction is not missed.
+- `hook session-start` skips a note that is not valid UTF-8 instead of failing the whole hook.
+
+### Removed
+
+- The Dependabot configuration. The checks listed in `CONTRIBUTING.md` run locally, so the
+  project does not depend on GitHub automation.
+
 ## [1.1.0] - 2026-11-16
 
 ### Added
@@ -44,8 +63,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
-- The GitHub Actions workflow and the Dependabot configuration. The checks listed in
-  `CONTRIBUTING.md` run locally, so the project does not depend on GitHub automation.
+- The GitHub Actions workflow. The checks listed in `CONTRIBUTING.md` run locally, so the project
+  does not depend on Actions.
 
 ## [1.0.0] - 2026-11-09
 

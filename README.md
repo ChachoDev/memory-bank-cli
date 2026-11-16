@@ -45,7 +45,7 @@ and teammates share it by pulling.
    `memory-bank/instructions.md`, and configures the lifecycle hooks it can.
 3. From then on, every agent session loads the memory bank before working.
 4. When the agent changes code, the hooks (or the rules in `instructions.md`) make it update
-   `activeContext.md` and `progress.md` before finishing, and to run `memory-bank check`, which
+   `activeContext.md` and `progress.md` before finishing and run `memory-bank check`, which
    reports drift without touching a single note.
 5. You commit the result with the code. The next session, and your teammates, start with context.
 
@@ -275,9 +275,9 @@ memory-bank check --strict    # also exits 1 on warnings (useful in CI)
 It checks that the six files and their main sections exist, that no template placeholder or
 unrendered token is left, that `activeContext.md` is still short, that file references resolve,
 that "Known issues: None" does not contradict TODO/FIXME markers in the code, that the agent links
-point to `instructions.md`, that `instructions.md` is not from an older release, that dates are ISO
-and that no obvious secret was pasted. A fresh memory bank normally passes with placeholder
-warnings; fill it in and run `check --strict` before committing.
+point to `instructions.md`, that `instructions.md` is not from an older release, that the dates
+in `decisionLog.md` are ISO and that no obvious secret was pasted. A fresh memory bank normally
+passes with placeholder warnings; fill it in and run `check --strict` before committing.
 
 `sync` never rewrites your notes, so an `instructions.md` created by an older version keeps its old
 rules. `check` warns about it and names the fix: ask the agent to merge the missing sections from the
@@ -378,7 +378,8 @@ git commit -m "chore: add memory bank"
 - **CI** does not need the memory bank to build your project. If you use the per-project install,
   keep the pinned version in `uv.lock`; do not run `reset` in CI, because it destroys notes.
 - **CI can validate the memory bank**: run `memory-bank check --strict`. It is read-only, so it
-  never touches notes, and it fails when the bank drifts from the code or the docs.
+  never touches notes, and it fails on provable inconsistencies: missing sections, broken
+  references, stale templates, oversized notes, bad dates or obvious secrets.
 - **Never commit** `.venv/` or the tool's cache. The generated files and configs are what you
   share.
 
@@ -421,7 +422,7 @@ The templates stay in English because their main reader is the agent.
 | OpenCode does not load the files | No `instructions` entry | Add `"memory-bank/*.md"` to `opencode.json` and restart the session |
 | `check` reports a placeholder | The memory bank is still a template | Fill the file in; a fresh bank always warns |
 | `check` wants a newer `instructions.md` | The note was written by an older release | Ask the agent to copy the new sections and the version marker; `sync` never overwrites notes |
-| `check` says a note is too large | The bank is growing | Compress the oldest `decisionLog.md` entries to one line each; the detail stays in Git |
+| `check` says a note is too large | The bank is growing | Compress or split the note; for `decisionLog.md`, shrink the oldest entries to one line each and keep the detail in Git |
 
 ### Command reference
 
@@ -614,9 +615,9 @@ Comprueba que existen los seis ficheros y sus secciones principales, que no qued
 de plantilla ni token sin sustituir, que `activeContext.md` sigue siendo corto, que las
 referencias a ficheros existen, que "Known issues: None" no contradice marcadores TODO/FIXME del
 código, que los enlaces de agente apuntan a `instructions.md`, que `instructions.md` no viene de una
-versión anterior, que las fechas son ISO y que no se ha pegado un secreto evidente. Un Memory Bank
-recién creado suele pasar con avisos de placeholders; complétalo y ejecuta `check --strict` antes de
-hacer commit.
+versión anterior, que las fechas de `decisionLog.md` son ISO y que no se ha pegado un secreto
+evidente. Un Memory Bank recién creado suele pasar con avisos de placeholders; complétalo y
+ejecuta `check --strict` antes de hacer commit.
 
 `sync` nunca reescribe tus notas, así que un `instructions.md` creado por una versión anterior
 conserva sus reglas antiguas. `check` lo avisa e indica la solución: pide al agente que copie las
@@ -692,7 +693,9 @@ git commit -m "chore: add memory bank"
 - CI no necesita el memory bank para compilar. Si usas la instalación por proyecto, mantén la
   versión fijada en `uv.lock`; no ejecutes `reset` en CI, porque borra notas.
 - **CI puede validar el memory bank**: ejecuta `memory-bank check --strict`. Es de solo lectura,
-  así que nunca toca las notas, y falla cuando el banco se desvía del código o de la documentación.
+  así que nunca toca las notas, y falla ante incoherencias demostrables: secciones que faltan,
+  referencias rotas, plantillas antiguas, notas demasiado grandes, fechas mal formadas o secretos
+  evidentes.
 - No hagas commit de `.venv/` ni de la caché de la herramienta.
 
 ### Idioma
@@ -721,7 +724,7 @@ principal es el agente.
 | OpenCode no carga los ficheros | Falta la entrada `instructions` | Añádela a `opencode.json` y reinicia la sesión |
 | `check` reporta un placeholder | El Memory Bank aún es una plantilla | Completa el fichero; un banco nuevo siempre avisa |
 | `check` pide un `instructions.md` más nuevo | La nota la escribió una versión anterior | Pide al agente que copie las secciones nuevas y el marcador de versión; `sync` nunca sobrescribe notas |
-| `check` dice que una nota es demasiado grande | El banco está creciendo | Comprime las entradas más antiguas de `decisionLog.md` a una línea; el detalle sigue en Git |
+| `check` dice que una nota es demasiado grande | El banco está creciendo | Comprime o divide la nota; en `decisionLog.md`, reduce las entradas más antiguas a una línea y deja el detalle en Git |
 
 ### Comandos y códigos de salida
 

@@ -296,9 +296,13 @@ def session_context(project_root: str) -> str:
     ]
     for name in names:
         path = directory / name
-        if path.is_file():
+        if not path.is_file():
+            continue
+        try:
             content = path.read_text(encoding="utf-8").strip()
-            sections.append(f"<!-- {MEMORY_DIR}/{name} -->\n{content}")
+        except (OSError, UnicodeDecodeError):
+            continue  # one unreadable note must not break the whole hook
+        sections.append(f"<!-- {MEMORY_DIR}/{name} -->\n{content}")
     return "\n\n".join(sections) + "\n"
 
 

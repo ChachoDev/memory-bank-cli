@@ -34,6 +34,12 @@ def test_a_fresh_scaffold_has_no_errors_only_placeholder_warnings(repo: Path) ->
     assert any("placeholder" in issue.message for issue in issues)
 
 
+def test_the_generated_decision_log_has_no_empty_entry(repo: Path) -> None:
+    _start(repo)
+    messages = _messages(repo)
+    assert not any("decisionLog.md" in message and "placeholder" in message for message in messages)
+
+
 def test_a_clean_memory_bank_passes(repo: Path) -> None:
     _start(repo)
     clean_memory_bank(repo)
@@ -124,6 +130,31 @@ def test_known_issues_none_with_code_markers_is_a_warning(repo: Path, marker: st
     _start(repo)
     clean_memory_bank(repo)
     (repo / "main.py").write_text(f"# {marker}: later\n", encoding="utf-8")
+    assert _has_warning(repo, "known issues")
+
+
+@pytest.mark.parametrize(
+    "phrase",
+    [
+        "No known issues.",
+        "None known.",
+        "No problems.",
+        "Sin problemas conocidos.",
+        "No hay problemas conocidos.",
+        "Aucun problème connu.",
+        "Keine bekannten Probleme.",
+        "N/A",
+    ],
+)
+def test_known_issues_understands_other_ways_to_say_none(repo: Path, phrase: str) -> None:
+    _start(repo)
+    clean_memory_bank(repo)
+    (repo / "main.py").write_text("# TODO: later\n", encoding="utf-8")
+    path = repo / "memory-bank" / "progress.md"
+    path.write_text(
+        path.read_text().replace("## Known issues\n\n- None.", f"## Known issues\n\n{phrase}"),
+        encoding="utf-8",
+    )
     assert _has_warning(repo, "known issues")
 
 

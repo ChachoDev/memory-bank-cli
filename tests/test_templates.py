@@ -73,6 +73,19 @@ def test_instructions_explain_how_to_compress_the_decision_log() -> None:
     assert "Never a bare title" in instructions
 
 
+def test_decision_log_ships_one_filled_example_and_no_empty_entry() -> None:
+    decision_log = TEMPLATES["decisionLog.md"]
+    assert "## ADR-001:" in decision_log
+    assert "## ADR-002" not in decision_log
+    assert "_Title_" not in decision_log
+
+
+def test_decision_log_allows_compression_but_not_rewriting_meaning() -> None:
+    decision_log = TEMPLATES["decisionLog.md"]
+    assert "Never rewrite an entry to change its meaning" in decision_log
+    assert "Compression under the size budget" in decision_log
+
+
 def test_instructions_include_a_consistency_checklist() -> None:
     instructions = TEMPLATES["instructions.md"]
     assert "Before finishing: consistency checklist" in instructions

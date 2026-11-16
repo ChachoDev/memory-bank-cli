@@ -234,6 +234,14 @@ def test_session_context_includes_every_file_in_reading_order(repo: Path) -> Non
     assert positions == sorted(positions)
 
 
+def test_session_context_skips_a_note_that_is_not_valid_utf8(repo: Path) -> None:
+    scaffold.create_memory_bank(str(repo), [], log=lambda _: None)
+    (repo / "memory-bank" / "broken.md").write_bytes(b"\xff\xfe\x00")
+    context = scaffold.session_context(str(repo))
+    assert "<!-- memory-bank/broken.md -->" not in context
+    assert "<!-- memory-bank/activeContext.md -->" in context
+
+
 def test_session_context_skips_instructions_when_claude_md_carries_them(repo: Path) -> None:
     scaffold.create_memory_bank(str(repo), [], log=lambda _: None)
     context = scaffold.session_context(str(repo))
