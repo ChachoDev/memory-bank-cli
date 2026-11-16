@@ -31,7 +31,7 @@ def test_help(argv: list[str], capsys: pytest.CaptureFixture[str]) -> None:
     assert cli.run(argv) == cli.EXIT_OK
     out = capsys.readouterr().out
     assert out.startswith(f"memory-bank {__version__}")
-    for command in ("start", "sync", "check", "reset", "help"):
+    for command in ("start", "sync", "check", "reset", "git-hooks", "help"):
         assert f"  {command}" in out
 
 

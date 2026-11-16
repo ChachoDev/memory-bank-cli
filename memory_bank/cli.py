@@ -1,4 +1,4 @@
-"""Command-line entry point: ``memory-bank help | start | sync | check | reset | hook <event>``."""
+"""Command-line entry point: ``memory-bank help | start | sync | check | reset | git-hooks | hook``."""
 
 from __future__ import annotations
 
@@ -74,6 +74,7 @@ def cmd_start(args: list[str]) -> int:
         _error(t("already_exists", path=scaffold.memory_dir(root)))
         return EXIT_ERROR
     scaffold.create_memory_bank(str(root), _scan(root))
+    scaffold.install_git_hooks(str(root))
     print(t("start_done"))
     return EXIT_OK
 
@@ -136,6 +137,19 @@ def cmd_reset(args: list[str]) -> int:
     return EXIT_OK
 
 
+def cmd_git_hooks(args: list[str]) -> int:
+    """Install or remove the Git pre-commit hook that runs ``memory-bank check``."""
+    if len(args) != 1 or args[0] not in {"install", "uninstall"}:
+        _error(t("unknown_command", command=" ".join(["git-hooks", *args])))
+        return EXIT_USAGE
+    root = require_git_root(Path.cwd())
+    if args[0] == "install":
+        ok = scaffold.install_git_hooks(str(root))
+    else:
+        ok = scaffold.uninstall_git_hooks(str(root))
+    return EXIT_OK if ok else EXIT_ERROR
+
+
 def _hook_root() -> Path | None:
     start = Path(os.environ.get("CLAUDE_PROJECT_DIR") or Path.cwd())
     try:
@@ -195,6 +209,7 @@ COMMANDS: Final[dict[str, Callable[[list[str]], int]]] = {
     "sync": cmd_sync,
     "check": cmd_check,
     "reset": cmd_reset,
+    "git-hooks": cmd_git_hooks,
     "hook": cmd_hook,
 }
 

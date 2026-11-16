@@ -43,7 +43,7 @@ Run `uvx ruff format .` to fix formatting instead of editing it by hand.
 | Path | Role |
 |------|------|
 | `memory_bank/cli.py` | Argument parsing, command dispatch, exit codes |
-| `memory_bank/scaffold.py` | Writes the memory bank, creates links and merges hooks |
+| `memory_bank/scaffold.py` | Writes the memory bank, creates links, and installs the agent and Git hooks |
 | `memory_bank/scanner.py` | Detects the stack of the repository being initialised |
 | `memory_bank/templates.py` | Contents of the generated Markdown files |
 | `memory_bank/i18n.py` | English, Spanish, French and German messages |

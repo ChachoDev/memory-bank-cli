@@ -28,10 +28,12 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
             "Usage: memory-bank <command> [options]\n"
             "\n"
             "Commands:\n"
-            "  start          Create the memory bank, agent links and hooks in this Git repository\n"
+            "  start          Create the memory bank, links and hooks (agent and Git) in this repo\n"
             "  sync           Repair missing files, broken links and outdated hooks; keeps notes\n"
             "  check [--strict]  Validate the memory bank; --strict also fails on warnings\n"
             "  reset [--yes]  Delete memory-bank/ and regenerate it from scratch\n"
+            "  git-hooks install    Install the pre-commit hook that runs 'memory-bank check'\n"
+            "  git-hooks uninstall  Remove the memory-bank pre-commit hook\n"
             "  help           Show this help\n"
             "\n"
             "Internal, called by agent hooks:\n"
@@ -64,6 +66,20 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         ),
         "hooks_written": "  + hooks configured in {path}",
         "hooks_ok": "  = hooks up to date in {path}",
+        "git_hook_installed": "  + installed the Git pre-commit hook {path}",
+        "git_hook_updated": "  ~ refreshed the Git pre-commit hook {path}",
+        "git_hook_ok": "  = the Git pre-commit hook {path} is up to date",
+        "git_hook_uninstalled": "  - removed the Git pre-commit hook {path}",
+        "git_hook_absent": "  = no memory-bank Git hook is installed.",
+        "git_hook_foreign": (
+            "  ! {path} exists and is not managed by memory-bank; left untouched. "
+            "Add 'memory-bank check' to it yourself."
+        ),
+        "git_hook_custom_path": (
+            "  ! Git uses a custom hooks path (core.hooksPath); "
+            "memory-bank does not manage hooks there."
+        ),
+        "git_hook_error": "  ! could not write {path}; left untouched.",
         "config_invalid": (
             "  ! {path} is not valid JSON or has an unexpected shape; left untouched. "
             "Fix it and run 'memory-bank sync'."
@@ -129,11 +145,13 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
             "Uso: memory-bank <comando> [opciones]\n"
             "\n"
             "Comandos:\n"
-            "  start          Crea el Memory Bank, los enlaces y los hooks en este repositorio Git\n"
+            "  start          Crea el Memory Bank, los enlaces y los hooks (agente y Git)\n"
             "  sync           Repara ficheros que faltan, enlaces rotos y hooks desactualizados\n"
             "                 sin tocar tus notas\n"
             "  check [--strict]  Valida el Memory Bank; --strict también falla con avisos\n"
             "  reset [--yes]  Borra memory-bank/ y lo regenera desde cero\n"
+            "  git-hooks install    Instala el hook pre-commit que ejecuta 'memory-bank check'\n"
+            "  git-hooks uninstall  Elimina el hook pre-commit de memory-bank\n"
             "  help           Muestra esta ayuda\n"
             "\n"
             "Internos, los llaman los hooks del agente:\n"
@@ -166,6 +184,20 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         ),
         "hooks_written": "  + hooks configurados en {path}",
         "hooks_ok": "  = hooks al día en {path}",
+        "git_hook_installed": "  + instalado el hook pre-commit de Git {path}",
+        "git_hook_updated": "  ~ actualizado el hook pre-commit de Git {path}",
+        "git_hook_ok": "  = el hook pre-commit de Git {path} ya está al día",
+        "git_hook_uninstalled": "  - eliminado el hook pre-commit de Git {path}",
+        "git_hook_absent": "  = no hay ningún hook de Git de memory-bank instalado.",
+        "git_hook_foreign": (
+            "  ! {path} existe y no lo gestiona memory-bank; no se ha tocado. "
+            "Añade 'memory-bank check' tú mismo."
+        ),
+        "git_hook_custom_path": (
+            "  ! Git usa una ruta de hooks personalizada (core.hooksPath); "
+            "memory-bank no gestiona hooks ahí."
+        ),
+        "git_hook_error": "  ! no se pudo escribir {path}; no se ha tocado.",
         "config_invalid": (
             "  ! {path} no es JSON válido o tiene una forma inesperada; no se ha tocado. "
             "Corrígelo y ejecuta 'memory-bank sync'."
@@ -236,11 +268,13 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
             "Usage : memory-bank <commande> [options]\n"
             "\n"
             "Commandes :\n"
-            "  start          Crée le Memory Bank, les liens et les hooks dans ce dépôt Git\n"
+            "  start          Crée le Memory Bank, les liens et les hooks (agent et Git)\n"
             "  sync           Répare les fichiers manquants, les liens cassés et les hooks\n"
             "                 obsolètes sans toucher à vos notes\n"
             "  check [--strict]  Valide le Memory Bank ; --strict échoue aussi sur les avertissements\n"
             "  reset [--yes]  Supprime memory-bank/ et le régénère de zéro\n"
+            "  git-hooks install    Installe le hook pre-commit qui lance 'memory-bank check'\n"
+            "  git-hooks uninstall  Supprime le hook pre-commit de memory-bank\n"
             "  help           Affiche cette aide\n"
             "\n"
             "Internes, appelées par les hooks de l'agent :\n"
@@ -279,6 +313,20 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         ),
         "hooks_written": "  + hooks configurés dans {path}",
         "hooks_ok": "  = hooks à jour dans {path}",
+        "git_hook_installed": "  + hook pre-commit Git installé : {path}",
+        "git_hook_updated": "  ~ hook pre-commit Git actualisé : {path}",
+        "git_hook_ok": "  = le hook pre-commit Git {path} est à jour",
+        "git_hook_uninstalled": "  - hook pre-commit Git supprimé : {path}",
+        "git_hook_absent": "  = aucun hook Git de memory-bank n'est installé.",
+        "git_hook_foreign": (
+            "  ! {path} existe et n'est pas géré par memory-bank ; laissé intact. "
+            "Ajoutez-y 'memory-bank check' vous-même."
+        ),
+        "git_hook_custom_path": (
+            "  ! Git utilise un chemin de hooks personnalisé (core.hooksPath) ; "
+            "memory-bank n'y gère pas de hooks."
+        ),
+        "git_hook_error": "  ! impossible d'écrire {path} ; laissé intact.",
         "config_invalid": (
             "  ! {path} n'est pas un JSON valide ou a une forme inattendue ; laissé intact. "
             "Corrigez-le puis exécutez 'memory-bank sync'."
@@ -352,11 +400,13 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
             "Verwendung: memory-bank <Befehl> [Optionen]\n"
             "\n"
             "Befehle:\n"
-            "  start          Legt Memory Bank, Agenten-Links und Hooks in diesem Git-Repository an\n"
+            "  start          Legt Memory Bank, Links und Hooks (Agent und Git) im Repository an\n"
             "  sync           Repariert fehlende Dateien, defekte Links und veraltete Hooks,\n"
             "                 ohne Notizen zu verändern\n"
             "  check [--strict]  Prüft die Memory Bank; --strict schlägt auch bei Warnungen fehl\n"
             "  reset [--yes]  Löscht memory-bank/ und erzeugt es komplett neu\n"
+            "  git-hooks install    Installiert den pre-commit-Hook, der 'memory-bank check' ausführt\n"
+            "  git-hooks uninstall  Entfernt den memory-bank-pre-commit-Hook\n"
             "  help           Zeigt diese Hilfe\n"
             "\n"
             "Intern, von Agenten-Hooks aufgerufen:\n"
@@ -396,6 +446,20 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         ),
         "hooks_written": "  + Hooks in {path} konfiguriert",
         "hooks_ok": "  = Hooks in {path} sind aktuell",
+        "git_hook_installed": "  + Git-pre-commit-Hook installiert: {path}",
+        "git_hook_updated": "  ~ Git-pre-commit-Hook aktualisiert: {path}",
+        "git_hook_ok": "  = der Git-pre-commit-Hook {path} ist aktuell",
+        "git_hook_uninstalled": "  - Git-pre-commit-Hook entfernt: {path}",
+        "git_hook_absent": "  = es ist kein Git-Hook von memory-bank installiert.",
+        "git_hook_foreign": (
+            "  ! {path} existiert und wird nicht von memory-bank verwaltet; "
+            "unverändert gelassen. Füge dort selbst 'memory-bank check' hinzu."
+        ),
+        "git_hook_custom_path": (
+            "  ! Git nutzt einen eigenen Hook-Pfad (core.hooksPath); "
+            "memory-bank verwaltet dort keine Hooks."
+        ),
+        "git_hook_error": "  ! {path} konnte nicht geschrieben werden; unverändert gelassen.",
         "config_invalid": (
             "  ! {path} ist kein gültiges JSON oder unerwartet aufgebaut; unverändert. "
             "Korrigiere es und führe 'memory-bank sync' aus."

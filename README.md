@@ -363,6 +363,26 @@ The Claude Code hooks call the `memory-bank` command, so every teammate needs it
 (`uv tool install`). When it is missing, Claude Code reports a non-blocking hook error and carries
 on.
 
+### Commit gate
+
+`start` also installs a `pre-commit` hook in `.git/hooks/`. It runs `memory-bank check` before
+every commit and aborts it when `check` finds errors. Warnings never block, and the hook stays
+silent unless it aborts, so only real errors interrupt a commit. It is read-only and does nothing
+if `memory-bank` is not on PATH or `memory-bank/` is missing, so removing the tool never leaves
+commits blocked.
+
+Git hooks are local and not versioned: every clone installs its own. `start` never replaces a
+`pre-commit` hook it did not create, and it does not write into a custom `core.hooksPath`. In those
+cases it reports the conflict and asks you to add `memory-bank check` to your own hook.
+
+```bash
+memory-bank git-hooks install    # add or refresh the hook on an existing bank
+memory-bank git-hooks uninstall  # remove only the memory-bank hook
+```
+
+`git commit --no-verify` skips the gate once. Because `check` reads the working tree, the gate
+validates what is on disk rather than the exact staged snapshot.
+
 ### Working in a team and in CI
 
 Commit the generated files with your code:
@@ -374,6 +394,8 @@ git commit -m "chore: add memory bank"
 
 - **Every teammate** should install `memory-bank` globally if they want the hooks. Without it,
   the files still work as plain documentation and Claude Code only logs a non-blocking error.
+- **Each clone installs its own Git hook.** `start` does it on a fresh bank; if you already had a
+  bank, run `memory-bank git-hooks install` once.
 - **After pulling**, run `memory-bank sync` if links, copies or hooks may have changed.
 - **CI** does not need the memory bank to build your project. If you use the per-project install,
   keep the pinned version in `uv.lock`; do not run `reset` in CI, because it destroys notes.
@@ -428,18 +450,20 @@ The templates stay in English because their main reader is the agent.
 
 ```bash
 memory-bank help            # usage, in your system's language
-memory-bank start           # create memory-bank/, agent links and hooks
+memory-bank start           # create memory-bank/, links and hooks (agent and Git)
 memory-bank sync            # repair missing files, broken links, outdated hooks; keeps notes
 memory-bank check           # validate the memory bank without changing it
 memory-bank check --strict  # also fail on warnings (CI)
 memory-bank reset           # delete memory-bank/ and regenerate it (asks first)
 memory-bank reset --yes     # same, without the prompt (CI, scripts)
+memory-bank git-hooks install    # install the pre-commit hook (start does it too)
+memory-bank git-hooks uninstall  # remove only the memory-bank pre-commit hook
 memory-bank hook session-start   # internal, called by the Claude Code SessionStart hook
 memory-bank hook stop            # internal, called by the Claude Code Stop hook
 ```
 
-Exit codes: `0` success, `1` error (no Git, already initialised, reset cancelled, or `check` found
-errors / strict warnings), `2` wrong usage.
+Exit codes: `0` success, `1` error (no Git, already initialised, reset cancelled, `check` found
+errors / strict warnings, or `git-hooks install` found a hook it does not own), `2` wrong usage.
 
 ### Credits
 
@@ -678,6 +702,26 @@ máximo una vez por turno, así que no entra en bucle). En OpenCode, `opencode.j
 `memory-bank/*.md` en cada sesión. En Cursor y Pi, las reglas de `instructions.md`. La configuración
 se mezcla con la tuya; un JSON inválido se deja intacto y se reporta.
 
+### Puerta de commit
+
+`start` también instala un hook `pre-commit` en `.git/hooks/`. Ejecuta `memory-bank check` antes de
+cada commit y lo aborta cuando `check` encuentra errores. Los avisos nunca bloquean y el hook solo
+habla cuando aborta, así que únicamente los errores interrumpen un commit. Es de solo lectura y no
+hace nada si `memory-bank` no está en el PATH o si falta `memory-bank/`, así que desinstalar la
+herramienta nunca deja commits bloqueados.
+
+Los hooks de Git son locales y no se versionan: cada clon instala el suyo. `start` nunca sustituye
+un `pre-commit` que no creó él, ni escribe en un `core.hooksPath` personalizado. En esos casos
+informa del conflicto y te pide añadir `memory-bank check` a tu propio hook.
+
+```bash
+memory-bank git-hooks install    # añade o refresca el hook en un banco existente
+memory-bank git-hooks uninstall  # elimina solo el hook de memory-bank
+```
+
+`git commit --no-verify` salta la puerta una vez. Como `check` lee el árbol de trabajo, la puerta
+valida lo que hay en disco, no exactamente lo que está preparado en el índice.
+
 ### Equipo y CI
 
 Haz commit de los ficheros generados con tu código:
@@ -689,6 +733,8 @@ git commit -m "chore: add memory bank"
 
 - Cada compañero debe instalar `memory-bank` globalmente si quiere los hooks. Sin él, los ficheros
   siguen sirviendo como documentación y Claude Code solo registra un error no bloqueante.
+- Cada clon instala su propio hook de Git. `start` lo hace con un banco nuevo; si ya tenías uno,
+  ejecuta `memory-bank git-hooks install` una vez.
 - Tras un `git pull`, ejecuta `memory-bank sync` si pueden haber cambiado enlaces, copias o hooks.
 - CI no necesita el memory bank para compilar. Si usas la instalación por proyecto, mantén la
   versión fijada en `uv.lock`; no ejecutes `reset` en CI, porque borra notas.
@@ -730,16 +776,19 @@ principal es el agente.
 
 ```bash
 memory-bank help            # ayuda en el idioma del sistema
-memory-bank start           # crea memory-bank/, los enlaces y los hooks
+memory-bank start           # crea memory-bank/, los enlaces y los hooks (agente y Git)
 memory-bank sync            # repara lo que falta sin tocar tus notas
 memory-bank check           # valida el Memory Bank sin cambiarlo
 memory-bank check --strict  # también falla con avisos (CI)
 memory-bank reset           # borra y regenera memory-bank/ (pide confirmación)
 memory-bank reset --yes     # lo mismo, sin preguntar (CI, scripts)
+memory-bank git-hooks install    # instala el hook pre-commit (start también lo hace)
+memory-bank git-hooks uninstall  # elimina solo el hook pre-commit de memory-bank
 ```
 
-Códigos: `0` éxito, `1` error (sin Git, ya inicializado, reset cancelado, o `check` encontró
-errores / avisos con `--strict`), `2` uso incorrecto.
+Códigos: `0` éxito, `1` error (sin Git, ya inicializado, reset cancelado, `check` encontró
+errores / avisos con `--strict`, o `git-hooks install` encontró un hook que no gestiona), `2` uso
+incorrecto.
 
 **Créditos:** la idea original del Memory Bank es de
 [Nick Baumann](https://github.com/nickbaumann98), creada para [Cline](https://cline.bot). Este
@@ -837,6 +886,9 @@ est encore vraie, donc l'agent doit relire le code avant d'écrire.
 Commitez `memory-bank/`, `AGENTS.md`, `CLAUDE.md`, `.cursorrules`, `.opencode/`,
 `.claude/settings.json` et `opencode.json` avec le code. Chaque coéquipier installe l'outil globalement pour les hooks ; sans
 lui, les fichiers restent utilisables et Claude Code affiche seulement une erreur non bloquante.
+`start` installe aussi un hook Git `pre-commit` local (non versionné) qui lance `memory-bank check`
+avant chaque commit et bloque en cas d'erreur ; pour un dépôt existant, utilisez
+`memory-bank git-hooks install` (ou `uninstall`).
 Après un `git pull`, lancez `memory-bank sync`. La CI peut valider le Memory Bank avec
 `memory-bank check --strict` (lecture seule, ne touche pas aux notes). Ne commitez pas `.venv/` et
 ne lancez pas `reset` en CI.
@@ -941,7 +993,10 @@ darüber schreibt.
 Committe `memory-bank/`, `AGENTS.md`, `CLAUDE.md`, `.cursorrules`, `.opencode/`,
 `.claude/settings.json` und `opencode.json` zusammen mit dem Code. Jedes Teammitglied installiert das Tool global für die
 Hooks; ohne Installation bleiben die Dateien nutzbar und Claude Code meldet nur einen nicht
-blockierenden Fehler. Nach `git pull` `memory-bank sync` ausführen. Die CI kann die Memory Bank
+blockierenden Fehler. `start` installiert außerdem einen lokalen, nicht versionierten
+Git-`pre-commit`-Hook, der vor jedem Commit `memory-bank check` ausführt und bei Fehlern abbricht;
+für ein bestehendes Repository nutze `memory-bank git-hooks install` (oder `uninstall`).
+Nach `git pull` `memory-bank sync` ausführen. Die CI kann die Memory Bank
 mit `memory-bank check --strict` prüfen (nur lesend). `.venv/` nicht committen und `reset` nicht in
 CI ausführen.
 

@@ -1,4 +1,4 @@
-"""Create and repair the memory bank: Markdown files, agent links and lifecycle hooks.
+"""Create and repair the memory bank: Markdown files, agent links, agent hooks and the Git gate.
 
 Everything here is idempotent and never overwrites user content:
 
@@ -15,6 +15,8 @@ Hooks per agent:
 - OpenCode (``opencode.json``): ``instructions`` loads ``memory-bank/*.md`` into every session.
 - Cursor, Pi and any tool reading ``CLAUDE.md`` or ``.cursorrules``: the links to
   ``instructions.md`` carry the read-first / update-last rules.
+- Git (``.git/hooks/pre-commit``): ``memory-bank check`` runs before every commit, so errors are
+  caught whatever wrote the files and whoever runs the commit.
 """
 
 from __future__ import annotations
@@ -54,6 +56,11 @@ CLAUDE_HOOKS: Final[dict[str, str]] = {
     "SessionStart": "memory-bank hook session-start",
     "Stop": "memory-bank hook stop",
 }
+
+# Git hooks are local and unversioned: the marker is how we tell our file from a user's own hook.
+GIT_HOOK_MARKER: Final = (
+    "# memory-bank: managed pre-commit hook (remove it with 'memory-bank git-hooks uninstall')"
+)
 
 OPENCODE_CONFIG: Final = Path("opencode.json")
 OPENCODE_JSONC: Final = Path("opencode.jsonc")
@@ -241,6 +248,122 @@ def configure_hooks(root: Path, log: Log = print) -> None:
         log(t("jsonc_skipped", path=OPENCODE_JSONC.as_posix()))
     else:
         _update_json(root, OPENCODE_CONFIG, _merge_opencode, log)
+
+
+# --- Git hooks ------------------------------------------------------------------------------
+
+
+def git_hook_script() -> str:
+    """The managed ``pre-commit`` script: read-only, silent on success, and safe as debris."""
+    return (
+        "#!/bin/sh\n"
+        f"{GIT_HOOK_MARKER}\n"
+        "root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0\n"
+        'cd "$root" || exit 0\n'
+        "[ -d memory-bank ] || exit 0\n"
+        "command -v memory-bank >/dev/null 2>&1 || exit 0\n"
+        "output=$(memory-bank check 2>&1)\n"
+        "status=$?\n"
+        'if [ "$status" -eq 0 ]; then\n'
+        "    exit 0\n"
+        "fi\n"
+        'printf "%s\\n" "$output" >&2\n'
+        'if [ "$status" -eq 1 ]; then\n'
+        '    echo "memory-bank: commit blocked; fix the errors above, '
+        'or run git commit --no-verify." >&2\n'
+        "    exit 1\n"
+        "fi\n"
+        'echo "memory-bank: check failed unexpectedly (exit $status); '
+        'allowing the commit." >&2\n'
+        "exit 0\n"
+    )
+
+
+def _git_output(root: Path, *args: str) -> str:
+    try:
+        result = subprocess.run(
+            ["git", *args], cwd=root, capture_output=True, text=True, check=False
+        )
+    except OSError:
+        return ""
+    return result.stdout.strip() if result.returncode == 0 else ""
+
+
+def _git_hooks_dir(root: Path) -> Path | None:
+    """Return the default hooks directory, or None when Git uses a custom ``core.hooksPath``."""
+    common = _git_output(root, "rev-parse", "--git-common-dir")
+    current = _git_output(root, "rev-parse", "--git-path", "hooks")
+    if not common or not current:
+        return None
+    default = (root / common).resolve() / "hooks"
+    actual = (root / current).resolve()
+    return actual if actual == default else None
+
+
+def _shown_path(root: Path, path: Path) -> str:
+    try:
+        return path.relative_to(root).as_posix()
+    except ValueError:
+        return str(path)
+
+
+def _is_managed_hook(path: Path) -> bool:
+    try:
+        return GIT_HOOK_MARKER in path.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return False
+
+
+def install_git_hooks(project_root: str, log: Log = print) -> bool:
+    """Install or refresh the managed pre-commit hook; never replaces somebody else's."""
+    root = Path(project_root).resolve()
+    hooks = _git_hooks_dir(root)
+    if hooks is None:
+        log(t("git_hook_custom_path"))
+        return False
+    path = hooks / "pre-commit"
+    shown = _shown_path(root, path)
+    script = git_hook_script()
+    try:
+        exists = path.exists()
+        if exists and not _is_managed_hook(path):
+            log(t("git_hook_foreign", path=shown))
+            return False
+        if exists and path.read_text(encoding="utf-8", errors="replace") == script:
+            log(t("git_hook_ok", path=shown))
+            return True
+        hooks.mkdir(parents=True, exist_ok=True)
+        path.write_text(script, encoding="utf-8")
+        path.chmod(0o755)
+    except OSError:
+        log(t("git_hook_error", path=shown))
+        return False
+    log(t("git_hook_updated" if exists else "git_hook_installed", path=shown))
+    return True
+
+
+def uninstall_git_hooks(project_root: str, log: Log = print) -> bool:
+    """Remove the managed pre-commit hook; leaves a foreign one untouched."""
+    root = Path(project_root).resolve()
+    hooks = _git_hooks_dir(root)
+    if hooks is None:
+        log(t("git_hook_custom_path"))
+        return True
+    path = hooks / "pre-commit"
+    if not path.exists():
+        log(t("git_hook_absent"))
+        return True
+    shown = _shown_path(root, path)
+    if not _is_managed_hook(path):
+        log(t("git_hook_foreign", path=shown))
+        return True
+    try:
+        path.unlink()
+    except OSError:
+        log(t("git_hook_error", path=shown))
+        return False
+    log(t("git_hook_uninstalled", path=shown))
+    return True
 
 
 # --- Public commands ------------------------------------------------------------------------

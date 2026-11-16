@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `start` installs a local `pre-commit` hook in `.git/hooks/` that runs `memory-bank check` and
+  aborts the commit when `check` finds errors (never on warnings). The hook is read-only, silent
+  unless it blocks, and does nothing when `memory-bank` is not on PATH or `memory-bank/` is
+  missing. It never replaces a hook it did not create and never writes into a custom
+  `core.hooksPath`.
+- `memory-bank git-hooks install|uninstall`: install or remove only the managed hook. `sync` leaves
+  Git hooks alone, so an explicit uninstall is respected. Git hooks are local and unversioned, so
+  each clone installs its own; existing banks run `git-hooks install` once.
+
 ### Changed
 
 - The `decisionLog.md` template now presents compression under the size budget as the only
