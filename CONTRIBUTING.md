@@ -26,8 +26,7 @@ uv tool install --editable .
 
 ## Checks before opening a pull request
 
-This project does not use GitHub Actions: the checks are run locally, and CI is not required.
-Run all of these on Python 3.10 or newer before opening a pull request:
+CI runs all of these on Python 3.10 and 3.13, so run them locally first:
 
 ```bash
 uvx ruff check .

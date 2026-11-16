@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: checks (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # The oldest and the newest interpreter the project supports.
+        python-version: ["3.10", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+          enable-cache: true
+
+      - name: Install the project
+        run: uv sync --locked
+
+      # Pinned on purpose: an unpinned linter turns a green build red on someone else's release.
+      - name: Ruff lint
+        run: uvx ruff@0.17.5 check .
+
+      - name: Ruff format
+        run: uvx ruff@0.17.5 format --check .
+
+      - name: Mypy (strict)
+        run: uvx --python ${{ matrix.python-version }} mypy@2.4.1 --strict memory_bank
+
+      - name: Tests
+        run: uv run pytest
+
+      - name: CLI smoke test
+        run: uv run memory-bank help
+
+  package:
+    name: build and install the wheel
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
+      - name: Build
+        run: uv build
+
+      - name: Install the wheel in a clean environment and run it
+        run: |
+          uv venv /tmp/smoke --python 3.10
+          uv pip install --python /tmp/smoke/bin/python dist/*.whl
+          /tmp/smoke/bin/memory-bank --version
+          /tmp/smoke/bin/memory-bank help
