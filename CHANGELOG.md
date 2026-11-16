@@ -41,8 +41,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   step-by-step walkthrough for new and existing repositories, what `start`, `sync`, `check` and
   `reset` do, the team/CI workflow, hook details and a troubleshooting table. It now credits the
   original Memory Bank idea in every language and links to `CREDITS.md`.
-- GitHub Actions is back, with the linter and type checker pinned so a tool release cannot turn a
-  green build red, plus a job that builds the wheel and runs the installed `memory-bank` binary.
+
+### Removed
+
+- The GitHub Actions workflow. The checks listed in `CONTRIBUTING.md` run locally, so the project
+  does not depend on Actions.
 
 ## [1.0.0] - 2026-11-09
 
