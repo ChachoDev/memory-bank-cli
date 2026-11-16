@@ -1,5 +1,6 @@
 # memory-bank
 
+[![CI](https://github.com/ChachoDev/memory-bank-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/ChachoDev/memory-bank-cli/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 
@@ -45,7 +46,8 @@ and teammates share it by pulling.
    `memory-bank/instructions.md`, and configures the lifecycle hooks it can.
 3. From then on, every agent session loads the memory bank before working.
 4. When the agent changes code, the hooks (or the rules in `instructions.md`) make it update
-   `activeContext.md` and `progress.md` before finishing.
+   `activeContext.md` and `progress.md` before finishing, and to run `memory-bank check`, which
+   reports drift without touching a single note.
 5. You commit the result with the code. The next session, and your teammates, start with context.
 
 ### Requirements
@@ -289,6 +291,20 @@ warns when one note passes 12,000 characters (about 3k tokens) or the bank passe
 constraint it imposes and dropping the deliberation. `instructions.md` spells that rule out, and
 `git log -p memory-bank/decisionLog.md` brings the full text back whenever an agent needs it.
 
+### What `check` does not catch
+
+`check` is mechanical: it verifies structure, references, dates, sizes and obvious secrets. It
+cannot tell whether a sentence is still true, so some drift survives it:
+
+- a note that describes behaviour the code no longer has;
+- a count that was right when it was written;
+- a "next step" that is already done;
+- a decision that was quietly reversed.
+
+Treat a green run as a floor, not a certificate: it means "nothing provably broken", and the agent
+still has to read the code before writing about it. That is what the checklist in
+`instructions.md` is for.
+
 ### What `start` creates
 
 ```text
@@ -367,6 +383,15 @@ git commit -m "chore: add memory bank"
 - **Never commit** `.venv/` or the tool's cache. The generated files and configs are what you
   share.
 
+A step that validates the memory bank on every pull request looks like this:
+
+```yaml
+- name: Validate the memory bank
+  run: |
+    uv tool install git+https://github.com/ChachoDev/memory-bank-cli
+    memory-bank check --strict
+```
+
 ### Language
 
 The CLI language comes from `MEMORY_BANK_LANG`, then `LC_ALL`, `LC_MESSAGES`, `LANG`, `LANGUAGE`,
@@ -396,6 +421,8 @@ The templates stay in English because their main reader is the agent.
 | Help appears in the wrong language | Locale detection | Set `MEMORY_BANK_LANG=en` (or `es`, `fr`, `de`) |
 | OpenCode does not load the files | No `instructions` entry | Add `"memory-bank/*.md"` to `opencode.json` and restart the session |
 | `check` reports a placeholder | The memory bank is still a template | Fill the file in; a fresh bank always warns |
+| `check` wants a newer `instructions.md` | The note was written by an older release | Ask the agent to copy the new sections and the version marker; `sync` never overwrites notes |
+| `check` says a note is too large | The bank is growing | Compress the oldest `decisionLog.md` entries to one line each; the detail stays in Git |
 
 ### Command reference
 
@@ -603,6 +630,20 @@ tamaño: avisa cuando una nota pasa de 12.000 caracteres (unos 3k tokens) o el b
 restricción que impone y soltando la deliberación. `instructions.md` recoge esa regla, y
 `git log -p memory-bank/decisionLog.md` recupera el texto completo cuando un agente lo necesita.
 
+### Lo que `check` no detecta
+
+`check` es mecánico: comprueba estructura, referencias, fechas, tamaño y secretos evidentes. No
+puede saber si una frase sigue siendo verdad, así que hay deriva que se le escapa:
+
+- una nota que describe un comportamiento que el código ya no tiene;
+- un recuento que era correcto cuando se escribió;
+- un "próximo paso" que ya está hecho;
+- una decisión que se revirtió sin dejar rastro.
+
+Un resultado verde es un suelo, no un certificado: significa "nada demostrablemente roto", y el
+agente sigue teniendo que leer el código antes de escribir sobre él. Para eso está el checklist de
+`instructions.md`.
+
 ### Qué crea `start`
 
 ```text
@@ -680,6 +721,8 @@ principal es el agente.
 | La ayuda sale en otro idioma | Detección del locale | Usa `MEMORY_BANK_LANG=es` (o `en`, `fr`, `de`) |
 | OpenCode no carga los ficheros | Falta la entrada `instructions` | Añádela a `opencode.json` y reinicia la sesión |
 | `check` reporta un placeholder | El Memory Bank aún es una plantilla | Completa el fichero; un banco nuevo siempre avisa |
+| `check` pide un `instructions.md` más nuevo | La nota la escribió una versión anterior | Pide al agente que copie las secciones nuevas y el marcador de versión; `sync` nunca sobrescribe notas |
+| `check` dice que una nota es demasiado grande | El banco está creciendo | Comprime las entradas más antiguas de `decisionLog.md` a una línea; el detalle sigue en Git |
 
 ### Comandos y códigos de salida
 
@@ -784,15 +827,17 @@ session : une note au-delà de 12 000 caractères (~3k jetons) ou l'ensemble au-
 (~10k jetons) déclenche un avertissement. Le remède est la compression, jamais la suppression :
 les plus anciennes entrées de `decisionLog.md` se réduisent à une ligne, la décision et sa
 contrainte restent, la délibération part dans l'historique Git (`git log -p
-memory-bank/decisionLog.md`).
+memory-bank/decisionLog.md`). Un `check` vert reste un plancher : il ne prouve pas qu'une phrase
+est encore vraie, donc l'agent doit relire le code avant d'écrire.
 
 ### Équipe et CI
 
 Commitez `memory-bank/`, `AGENTS.md`, `CLAUDE.md`, `.cursorrules`, `.opencode/`,
 `.claude/settings.json` et `opencode.json` avec le code. Chaque coéquipier installe l'outil globalement pour les hooks ; sans
 lui, les fichiers restent utilisables et Claude Code affiche seulement une erreur non bloquante.
-Après un `git pull`, lancez `memory-bank sync`. Ne commitez pas `.venv/` et ne lancez pas `reset`
-en CI.
+Après un `git pull`, lancez `memory-bank sync`. La CI peut valider le Memory Bank avec
+`memory-bank check --strict` (lecture seule, ne touche pas aux notes). Ne commitez pas `.venv/` et
+ne lancez pas `reset` en CI.
 
 **Langue :** détectée depuis le système ; forcez-la avec `MEMORY_BANK_LANG=fr`. Les modèles
 restent en anglais car leur lecteur principal est l'agent.
@@ -885,15 +930,18 @@ Warnungen fehl. Es achtet auch auf die Größe, denn die Bank geht in jeder Sitz
 ein: eine Datei über 12.000 Zeichen (~3k Tokens) oder die Bank über 40.000 (~10k Tokens) löst eine
 Warnung aus. Die Lösung ist Komprimieren, nicht Löschen: die ältesten Einträge in
 `decisionLog.md` schrumpfen auf eine Zeile, Entscheidung und Einschränkung bleiben, die Abwägung
-geht in die Git-Historie (`git log -p memory-bank/decisionLog.md`).
+geht in die Git-Historie (`git log -p memory-bank/decisionLog.md`). Ein grüner Lauf bleibt eine
+Untergrenze: er beweist nicht, dass ein Satz noch stimmt, also liest der Agent den Code, bevor er
+darüber schreibt.
 
 ### Team und CI
 
 Committe `memory-bank/`, `AGENTS.md`, `CLAUDE.md`, `.cursorrules`, `.opencode/`,
 `.claude/settings.json` und `opencode.json` zusammen mit dem Code. Jedes Teammitglied installiert das Tool global für die
 Hooks; ohne Installation bleiben die Dateien nutzbar und Claude Code meldet nur einen nicht
-blockierenden Fehler. Nach `git pull` `memory-bank sync` ausführen. `.venv/` nicht committen und
-`reset` nicht in CI ausführen.
+blockierenden Fehler. Nach `git pull` `memory-bank sync` ausführen. Die CI kann die Memory Bank
+mit `memory-bank check --strict` prüfen (nur lesend). `.venv/` nicht committen und `reset` nicht in
+CI ausführen.
 
 **Sprache:** wird vom System erkannt; mit `MEMORY_BANK_LANG=de` erzwingen. Die Vorlagen bleiben
 englisch, weil ihr Hauptleser der Agent ist.
