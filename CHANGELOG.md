@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-11-16
+
 ### Added
 
 - `memory-bank check [--strict]`: a read-only consistency check for the memory bank. It reports
@@ -36,14 +38,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Rewrote the README as a detailed guide: global, per-project and ephemeral installation, a
-  step-by-step walkthrough for new and existing repositories, what `start`, `sync` and `reset`
-  do, the team/CI workflow, hook details and a troubleshooting table. It now credits the original
-  Memory Bank idea in every language and links to `CREDITS.md`.
-
-### Removed
-
-- The GitHub Actions CI workflow. The checks listed in `CONTRIBUTING.md` run locally, so the
-  project no longer uses Actions minutes.
+  step-by-step walkthrough for new and existing repositories, what `start`, `sync`, `check` and
+  `reset` do, the team/CI workflow, hook details and a troubleshooting table. It now credits the
+  original Memory Bank idea in every language and links to `CREDITS.md`.
+- GitHub Actions is back, with the linter and type checker pinned so a tool release cannot turn a
+  green build red, plus a job that builds the wheel and runs the installed `memory-bank` binary.
 
 ## [1.0.0] - 2026-11-09
 

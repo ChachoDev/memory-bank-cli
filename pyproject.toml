@@ -1,6 +1,6 @@
 [project]
 name = "memory-bank-cli"
-version = "1.0.0"
+version = "1.1.0"
 description = "A Python CLI utility for automating and managing persistent AI Memory Banks across multiple IDEs and agents."
 readme = "README.md"
 requires-python = ">=3.10"
