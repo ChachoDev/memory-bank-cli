@@ -30,8 +30,8 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any, Final
 
-from memory_bank.i18n import t
-from memory_bank.templates import INSTRUCTIONS_FILE, READ_ORDER, TEMPLATES, render
+from memory_bank.i18n import detect_language, t
+from memory_bank.templates import INSTRUCTIONS_FILE, READ_ORDER, get_templates, render
 
 Log = Callable[[str], None]
 
@@ -92,11 +92,13 @@ def memory_dir(root: Path) -> Path:
 
 
 def write_templates(root: Path, detected_stack: list[str], log: Log = print) -> None:
-    """Write every template that does not exist yet."""
+    """Write every template that does not exist yet, in the detected language."""
     directory = memory_dir(root)
     directory.mkdir(parents=True, exist_ok=True)
     today = dt.date.today().isoformat()
-    for name, template in TEMPLATES.items():
+    lang = detect_language()
+    templates = get_templates(lang)
+    for name, template in templates.items():
         path = directory / name
         relative = path.relative_to(root).as_posix()
         if path.exists():

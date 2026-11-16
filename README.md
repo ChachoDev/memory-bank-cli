@@ -64,19 +64,14 @@ agent hooks need to find the `memory-bank` command from any shell.
 
 | Mode | Command | Where it lives | Best for |
 |------|---------|----------------|----------|
-| **Global** (recommended) | `uv tool install git+https://github.com/ChachoDev/memory-bank-cli` | Isolated env in `~/.local/share/uv/tools/memory-bank-cli`; command in `~/.local/bin` | Daily use in every repository; hooks always work |
+| **From GitHub** (recommended) | `uv tool install git+https://github.com/ChachoDev/memory-bank-cli` | Isolated uv tools env; command on PATH | Daily use in every repository; hooks always work |
 | **Per project** | `uv add --dev git+https://github.com/ChachoDev/memory-bank-cli` | The repository's `.venv/`; pinned in `pyproject.toml` and `uv.lock` | Pinning the tool version in one repository or in CI |
-| **Without installing** | `uvx --from git+https://github.com/ChachoDev/memory-bank-cli memory-bank start` | Temporary env in the uv cache | Trying it once, or generating the files in a sandbox |
+| **Without installing** | `uvx git+https://github.com/ChachoDev/memory-bank-cli start` | Temporary env in the uv cache | Trying it once, or generating the files in a sandbox |
 
 #### Global install (recommended)
 
 ```bash
-# straight from GitHub:
 uv tool install git+https://github.com/ChachoDev/memory-bank-cli
-
-# or from a local clone:
-git clone https://github.com/ChachoDev/memory-bank-cli
-cd memory-bank-cli && uv tool install .
 
 # verify:
 memory-bank --version
@@ -88,10 +83,10 @@ command on your PATH. The package has no runtime dependencies. The hooks that `s
 `memory-bank` directly, so a global install is what makes them work in every repository without
 activating anything.
 
-Upgrade after pulling new changes:
+Upgrade:
 
 ```bash
-uv tool install --reinstall git+https://github.com/ChachoDev/memory-bank-cli
+uv tool upgrade memory-bank-cli
 memory-bank sync            # refresh links and hooks in each repository
 ```
 
@@ -99,6 +94,13 @@ Uninstall (the generated files stay in your repositories):
 
 ```bash
 uv tool uninstall memory-bank-cli
+```
+
+Installing from a local clone:
+
+```bash
+git clone https://github.com/ChachoDev/memory-bank-cli
+cd memory-bank-cli && uv tool install .
 ```
 
 Development mode, where code changes apply immediately:
@@ -131,7 +133,7 @@ In that case, install globally as well, or keep the venv active when you start t
 #### Try it without installing
 
 ```bash
-uvx --from git+https://github.com/ChachoDev/memory-bank-cli memory-bank start
+uvx git+https://github.com/ChachoDev/memory-bank-cli start
 ```
 
 This generates the memory bank and the configuration, but the hooks will not find `memory-bank`
@@ -410,7 +412,7 @@ A step that validates the memory bank on every pull request looks like this:
 ```yaml
 - name: Validate the memory bank
   run: |
-    uv tool install git+https://github.com/ChachoDev/memory-bank-cli
+    pip install git+https://github.com/ChachoDev/memory-bank-cli
     memory-bank check --strict
 ```
 
@@ -503,14 +505,15 @@ porque no necesita ningún servicio, se revisa en las merge requests y sigue a t
 
 | Modo | Comando | Dónde queda | Cuándo usarlo |
 |------|---------|-------------|---------------|
-| **Global** (recomendado) | `uv tool install git+https://github.com/ChachoDev/memory-bank-cli` | Entorno aislado en `~/.local/share/uv/tools/memory-bank-cli`; comando en `~/.local/bin` | Uso diario en todos los repositorios; los hooks siempre funcionan |
+| **Desde GitHub** (recomendado) | `uv tool install git+https://github.com/ChachoDev/memory-bank-cli` | Entorno aislado uv; comando en PATH | Uso diario en todos los repositorios; los hooks siempre funcionan |
 | **Por proyecto** | `uv add --dev git+https://github.com/ChachoDev/memory-bank-cli` | El `.venv/` del repositorio; queda fijado en `pyproject.toml` y `uv.lock` | Fijar la versión en un repositorio concreto o en CI |
-| **Sin instalar** | `uvx --from git+https://github.com/ChachoDev/memory-bank-cli memory-bank start` | Entorno temporal en la caché de uv | Probar una vez o generar los ficheros en un entorno aislado |
+| **Sin instalar** | `uvx git+https://github.com/ChachoDev/memory-bank-cli start` | Entorno temporal en la caché de uv | Probar una vez o generar los ficheros en un entorno aislado |
 
 **Global (recomendado):**
 
 ```bash
 uv tool install git+https://github.com/ChachoDev/memory-bank-cli
+
 memory-bank --version
 ```
 
@@ -521,7 +524,7 @@ que la instalación global es la que hace que funcionen en cualquier repositorio
 Actualizar y desinstalar:
 
 ```bash
-uv tool install --reinstall git+https://github.com/ChachoDev/memory-bank-cli
+uv tool upgrade memory-bank-cli
 memory-bank sync                 # refresca enlaces y hooks en cada repositorio
 uv tool uninstall memory-bank-cli
 ```
@@ -819,9 +822,9 @@ ou plus. Aucune dépendance d'exécution, aucun accès réseau : le CLI appelle 
 
 | Mode | Commande | Emplacement | Usage |
 |------|----------|-------------|-------|
-| **Globale** (recommandée) | `uv tool install git+https://github.com/ChachoDev/memory-bank-cli` | Environnement isolé dans `~/.local/share/uv/tools/memory-bank-cli` ; commande dans `~/.local/bin` | Usage quotidien dans tous les dépôts ; les hooks fonctionnent toujours |
+| **Depuis GitHub** (recommandée) | `uv tool install git+https://github.com/ChachoDev/memory-bank-cli` | Environnement isolé uv ; commande dans PATH | Usage quotidien dans tous les dépôts ; les hooks fonctionnent toujours |
 | **Par projet** | `uv add --dev git+https://github.com/ChachoDev/memory-bank-cli` | Le `.venv/` du dépôt ; version figée dans `pyproject.toml` et `uv.lock` | Figer la version dans un dépôt ou en CI |
-| **Sans installer** | `uvx --from git+https://github.com/ChachoDev/memory-bank-cli memory-bank start` | Environnement temporaire du cache uv | Essayer une fois ou générer les fichiers dans un bac à sable |
+| **Sans installer** | `uvx git+https://github.com/ChachoDev/memory-bank-cli start` | Environnement temporaire du cache uv | Essayer une fois ou générer les fichiers dans un bac à sable |
 
 Les hooks générés appellent la commande `memory-bank` sans chemin absolu : l'installation globale
 est donc recommandée. En installation par projet, ils fonctionnent si l'environnement qui lance
@@ -925,9 +928,9 @@ auf.
 
 | Modus | Befehl | Speicherort | Wofür |
 |-------|--------|-------------|-------|
-| **Global** (empfohlen) | `uv tool install git+https://github.com/ChachoDev/memory-bank-cli` | Isolierte Umgebung in `~/.local/share/uv/tools/memory-bank-cli`; Befehl in `~/.local/bin` | Täglicher Einsatz in allen Repositorys; Hooks funktionieren immer |
+| **Von GitHub** (empfohlen) | `uv tool install git+https://github.com/ChachoDev/memory-bank-cli` | Isolierte uv-Umgebung; Befehl im PATH | Täglicher Einsatz in allen Repositorys; Hooks funktionieren immer |
 | **Pro Projekt** | `uv add --dev git+https://github.com/ChachoDev/memory-bank-cli` | Das `.venv/` des Repositorys; Version in `pyproject.toml` und `uv.lock` fixiert | Version in einem Repository oder in CI fixieren |
-| **Ohne Installation** | `uvx --from git+https://github.com/ChachoDev/memory-bank-cli memory-bank start` | Temporäre Umgebung im uv-Cache | Einmal ausprobieren oder Dateien in einer Sandbox erzeugen |
+| **Ohne Installation** | `uvx git+https://github.com/ChachoDev/memory-bank-cli start` | Temporäre Umgebung im uv-Cache | Einmal ausprobieren oder Dateien in einer Sandbox erzeugen |
 
 Die erzeugten Hooks rufen `memory-bank` ohne absoluten Pfad auf, deshalb ist die globale
 Installation empfohlen. Bei einer Installation pro Projekt funktionieren sie nur, wenn die

@@ -1,7 +1,7 @@
 [project]
 name = "memory-bank-cli"
-version = "1.1.0"
-description = "A Python CLI utility for automating and managing persistent AI Memory Banks across multiple IDEs and agents."
+version = "1.2.0"
+description = "Markdown memory bank for AI coding agents — create, sync, and validate across sessions."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
@@ -10,10 +10,18 @@ authors = [
 ]
 keywords = ["ai", "agents", "memory-bank", "context-engineering", "claude", "cursor", "opencode", "junie"]
 classifiers = [
+    "Development Status :: 4 - Beta",
     "Environment :: Console",
+    "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Software Development",
+    "Topic :: Software Development :: Documentation",
 ]
 
 # Only the standard library is used (pathlib, locale, json, subprocess, shutil).
